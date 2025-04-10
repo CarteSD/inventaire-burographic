@@ -88,6 +88,12 @@ class Inventaire:
                 else:
                     articlesDictionnary[code] = 1
 
+            # Création du fichier code;quantite
+            outputFile = "inventaire_quantite.txt"
+            with open(outputFile, 'w') as file:
+                for key, value in articlesDictionnary.items():
+                    file.write(f"{key};{value}\n")
+
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
             return
