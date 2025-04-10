@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+import os
 
 class Inventaire:
     def __init__(self, root):
@@ -61,7 +62,17 @@ class Inventaire:
             self.InventoryfilePath.set(filename)
 
     def launch_inventory(self):
-        return
+        # Récupération du fichier sélectionné
+        filePath = self.InventoryfilePath.get()
+        if not filePath:
+            messagebox.showerror("Erreur", "Veuillez sélectionner un fichier d'inventaire.")
+            return
+        if not os.path.exists(filePath):
+            messagebox.showerror("Erreur", "Le fichier sélectionné n'existe pas.")
+            return
+        if not filePath.endswith(".txt"):
+            messagebox.showerror("Erreur", "Le fichier sélectionné n'est pas un fichier texte.")
+            return
 
 root = tk.Tk()
 app = Inventaire(root)
