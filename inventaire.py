@@ -6,6 +6,7 @@ class Inventaire:
         self.root = root;
         self.root.title("BUROGRAPHIC - Inventaire")
         self.root.geometry("800x600")
+        self.root.iconbitmap("icone.ico")
 
         # Variables pour le chemin du fichier d'inventaire
         self.InventoryfilePath = tk.StringVar()
