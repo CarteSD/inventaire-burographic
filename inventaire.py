@@ -53,7 +53,12 @@ class Inventaire:
         self.results_frame.pack(fill=tk.BOTH, expand=True)
 
     def select_file(self):
-        return
+        filename = filedialog.askopenfilename(
+            title="Sélectionnez un fichier texte",
+            filetypes=(("Fichiers texte", "*.txt"), ("Tous les fichiers", "*.*"))
+        )
+        if filename:
+            self.InventoryfilePath.set(filename)
 
     def launch_inventory(self):
         return
