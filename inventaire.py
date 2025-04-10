@@ -74,6 +74,24 @@ class Inventaire:
             messagebox.showerror("Erreur", "Le fichier sélectionné n'est pas un fichier texte.")
             return
 
+        # Lecture du fichier d'inventaire
+        try:
+            with open(filePath, 'r') as file:
+                rawDatas = file.readlines()
+
+            # Création d'un dictionnaire pour transformer le fichier en code => quantité
+            articlesDictionnary = {}
+            for code in rawDatas:
+                code = code.replace("\n", "")
+                if code in articlesDictionnary:
+                    articlesDictionnary[code] += 1
+                else:
+                    articlesDictionnary[code] = 1
+
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
+            return
+
 root = tk.Tk()
 app = Inventaire(root)
 root.mainloop()
