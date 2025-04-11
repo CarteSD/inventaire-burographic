@@ -95,6 +95,9 @@ class Inventaire:
             return None
 
     def launch_inventory(self):
+        # Vider la zone d'informations
+        self.text_box.delete(1.0, tk.END)
+
         # Affichage du message de récupération du fichier d'inventaire
         self.text_box.insert(tk.END, "Récupération du fichier d'inventaire...\n")
         self.root.update()
@@ -223,7 +226,7 @@ class Inventaire:
                             file.write(f"{key};{articlesDictionnary[key]}\n")
 
             # Exécution de la fonction create_inventories
-            time.sleep(1)
+            time.sleep(3)
             self.text_box.insert(tk.END, "Lancement de la création des inventaires...\n")
             self.root.update()
             self.write_log("Lancement de la création des inventaires...")
@@ -255,7 +258,7 @@ class Inventaire:
             time.sleep(1)
             self.text_box.insert(tk.END, f"Traitement du fichier {file}...\n")
             self.root.update()
-            self.write_log("Traitement du fichier {file}...")
+            self.write_log(f"Traitement du fichier {file}...")
             with open(file_path, 'r') as f:
                 lines = f.readlines()
 
