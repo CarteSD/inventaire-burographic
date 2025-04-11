@@ -62,6 +62,25 @@ class Inventaire:
         if filename:
             self.InventoryfilePath.set(filename)
 
+    def get_famille(self, item):
+        try:
+            connection = database_connection()
+            if not connection:
+                return "Erreur de connexion"
+
+            cursor = connection.cursor()
+            query = "SELECT Famille FROM ElementDef WHERE Code = ?"
+            cursor.execute(query, item)
+            result = cursor.fetchone()
+            if result:
+                return result[0]
+            else:
+                return None
+
+        except pyodbc.Error as e:
+            print(f"Erreur lors de la récupération de la famille : {e}")
+            return None
+
     def launch_inventory(self):
         # Récupération du fichier sélectionné
         filePath = self.InventoryfilePath.get()
@@ -94,6 +113,14 @@ class Inventaire:
             with open(outputFile, 'w') as file:
                 for key, value in articlesDictionnary.items():
                     file.write(f"{key};{value}\n")
+
+            # Création du tableau des familles scannées
+            familles = []
+
+            for key in articlesDictionnary.keys():
+                famille = self.get_famille(key)
+                if famille is not None and famille not in familles:
+                    familles.append(famille)
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
