@@ -4,6 +4,7 @@ import os
 import pyodbc
 from datetime import datetime
 from constantes import *
+import shutil
 
 class Inventaire:
     def __init__(self, root):
@@ -134,7 +135,7 @@ class Inventaire:
                 else:
                     articlesDictionnary[code] = 1
 
-            inventairesDirectory = "./inventaires"
+            inventairesDirectory = ".\\inventaires"
             if not os.path.exists(inventairesDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {inventairesDirectory}...\n")
                 self.root.update()
@@ -155,6 +156,25 @@ class Inventaire:
                 self.root.update()
                 self.write_log(f"Création du dossier {thisInventoryDirectory}...")
                 os.makedirs(thisInventoryDirectory)
+            else:
+                self.text_box.insert(tk.END, f"Le dossier {thisInventoryDirectory} existe déjà.\n")
+                self.root.update()
+                self.write_log(f"Le dossier {thisInventoryDirectory} existe déjà.")
+                overwrite = messagebox.askyesno("Dossier existe déjà", f"Le dossier {thisInventoryDirectory} existe déjà. Voulez-vous l'écraser ?")
+                if overwrite:
+                    self.text_box.insert(tk.END, f"Suppression du dossier {thisInventoryDirectory}...\n")
+                    self.root.update()
+                    self.write_log(f"Suppression du dossier {thisInventoryDirectory}...")
+                    shutil.rmtree(thisInventoryDirectory)
+                    self.text_box.insert(tk.END, f"Création du dossier {thisInventoryDirectory}...\n")
+                    self.root.update()
+                    self.write_log(f"Création du dossier {thisInventoryDirectory}...")
+                    os.makedirs(thisInventoryDirectory)
+                else:
+                    self.text_box.insert(tk.END, "Annulation de l'opération.\n")
+                    self.root.update()
+                    self.write_log("Annulation de l'opération.")
+                    return
 
             # Création du fichier code;quantite
             outputFile = os.path.join(thisInventoryDirectory, f"inventaire_{currentDate}.txt")
