@@ -174,7 +174,16 @@ class Inventaire:
             familles = []
             for key in articlesDictionnary.keys():
                 famille = self.get_famille(key)
-                if famille is not None and famille not in familles:
+                if famille is None:
+                    self.log_and_display(f"La récupération de la famille pour l'article {key} a échoué")
+                    skip = messagebox.askyesno("Dossier déjà existant", f"La récupération de la famille pour l'article {key} a échoué.\nIl se peut que cet article ne soit pas enregsitré dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                    if skip:
+                        self.log_and_display(f"Article {key} ignoré.", 0.5)
+                        continue
+                    else:
+                        self.log_and_display("Annulation de l'opération.", 0.5)
+                        return
+                if famille not in familles:
                     familles.append(famille)
 
             # Création du dossier pour les familles
