@@ -90,8 +90,8 @@ class Inventaire:
                 return None
 
         except pyodbc.Error as e:
-            print(f"Erreur lors de la récupération de la famille : {e}")
-            self.write_log(f"[ERREUR] {e}")
+            messagebox.showerror("Erreur", f"Erreur lors de la récupération de la famille : {str(e)}")
+            self.write_log(f"[ERREUR] {str(e)}")
             return None
 
     def launch_inventory(self):
@@ -99,9 +99,7 @@ class Inventaire:
         self.text_box.delete(1.0, tk.END)
 
         # Affichage du message de récupération du fichier d'inventaire
-        self.text_box.insert(tk.END, "Récupération du fichier d'inventaire...\n")
-        self.root.update()
-        self.write_log("Récupération du fichier d'inventaire...")
+        self.log_and_display("Récupération du fichier d'inventaire...")
 
         # Récupération du fichier sélectionné
         filePath = self.InventoryFilePath.get()
@@ -115,23 +113,16 @@ class Inventaire:
             messagebox.showerror("Erreur", "Le fichier sélectionné n'est pas un fichier texte.")
             return
 
-        time.sleep(0.5)
         # Affichage du message de lecture du fichier d'inventaire
-        self.text_box.insert(tk.END, "Lecture du fichier d'inventaire...\n")
-        self.root.update()
-        self.write_log("Lecture du fichier d'inventaire...")
+        self.log_and_display("Lecture du fichier d'inventaire...", 0.5)
 
-        time.sleep(1)
         # Lecture du fichier d'inventaire
         try:
             with open(filePath, 'r') as file:
                 rawDatas = file.readlines()
 
-            time.sleep(0.5)
             # Affichage du message de récupération des articles
-            self.text_box.insert(tk.END, "Récupération des quantités de chaque article...\n")
-            self.root.update()
-            self.write_log("Récupération des quantités de chaque article...")
+            self.log_and_display("Récupération des articles...", 1)
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articlesDictionnary = {}
@@ -144,51 +135,33 @@ class Inventaire:
 
             inventairesDirectory = ".\\inventaires"
             if not os.path.exists(inventairesDirectory):
-                time.sleep(0.5)
-                self.text_box.insert(tk.END, f"Création du dossier {inventairesDirectory}...\n")
-                self.root.update()
-                self.write_log(f"Création du dossier {inventairesDirectory}...")
+                self.log_and_display(f"Création du dossier {inventairesDirectory}...", 0.5)
                 os.makedirs(inventairesDirectory)
 
-            time.sleep(0.5)
             # Affichage du message de création du fichier d'inventaire
-            self.text_box.insert(tk.END, "Création du dossier d'inventaire à la date du jour...\n")
-            self.root.update()
-            self.write_log("Création du dossier d'inventaire à la date du jour...")
+            self.log_and_display("Création du dossier d'inventaire à la date du jour", 0.5)
 
             currentDate = datetime.now().strftime("%Y-%m-%d")
-            self.text_box.insert(tk.END, f"Date d'inventaire : {currentDate}\n")
-            self.root.update()
+            self.log_and_display(f"Date d'inventaire : {currentDate}")
             thisInventoryDirectory = os.path.join(inventairesDirectory, f"inventaire_{currentDate}")
-            time.sleep(0.5)
+
             if not os.path.exists(thisInventoryDirectory):
-                self.text_box.insert(tk.END, f"Création du dossier {thisInventoryDirectory}...\n")
-                self.root.update()
-                self.write_log(f"Création du dossier {thisInventoryDirectory}...")
+                self.log_and_display(f"Création du dossier {thisInventoryDirectory}...", 0.5)
                 os.makedirs(thisInventoryDirectory)
             else:
-                time.sleep(0.5)
-                self.text_box.insert(tk.END, f"Le dossier {thisInventoryDirectory} existe déjà.\n")
-                self.root.update()
+                self.log_and_display(f"Le dossier {thisInventoryDirectory} existe déjà", 0.5)
+
                 time.sleep(2)
-                self.write_log(f"Le dossier {thisInventoryDirectory} existe déjà.")
-                overwrite = messagebox.askyesno("Dossier existe déjà", f"Le dossier {thisInventoryDirectory} existe déjà. Voulez-vous l'écraser ?")
+                overwrite = messagebox.askyesno("Dossier déjà existant", f"Le dossier {thisInventoryDirectory} existe déjà. Voulez-vous l'écraser ?")
+
                 if overwrite:
-                    time.sleep(0.5)
-                    self.text_box.insert(tk.END, f"Suppression du dossier {thisInventoryDirectory}...\n")
-                    self.root.update()
-                    self.write_log(f"Suppression du dossier {thisInventoryDirectory}...")
+                    self.log_and_display(f"Suppression du dossier {thisInventoryDirectory}...", 0.5)
                     shutil.rmtree(thisInventoryDirectory)
-                    time.sleep(0.5)
-                    self.text_box.insert(tk.END, f"Création du dossier {thisInventoryDirectory}...\n")
-                    self.root.update()
-                    self.write_log(f"Création du dossier {thisInventoryDirectory}...")
+
+                    self.log_and_display(f"Réécriture du dossier {thisInventoryDirectory}...", 0.5)
                     os.makedirs(thisInventoryDirectory)
                 else:
-                    time.sleep(0.5)
-                    self.text_box.insert(tk.END, "Annulation de l'opération.\n")
-                    self.root.update()
-                    self.write_log("Annulation de l'opération.")
+                    self.log_and_display("Annulation de l'opération.", 0.5)
                     return
 
             # Création du fichier code;quantite
@@ -207,18 +180,12 @@ class Inventaire:
             # Création du dossier pour les familles
             famillesDirectory = os.path.join(thisInventoryDirectory, "familles")
             if not os.path.exists(famillesDirectory):
-                time.sleep(0.5)
-                self.text_box.insert(tk.END, f"Création du dossier {famillesDirectory}...\n")
-                self.root.update()
-                self.write_log(f"Création du dossier {famillesDirectory}...")
+                self.log_and_display(f"Création du dossier {famillesDirectory}...", 0.5)
                 os.makedirs(famillesDirectory)
 
             # Création de chaque fichier d'inventaire par famille
             for famille in familles:
-                time.sleep(1)
-                self.text_box.insert(tk.END, f"Création du fichier d'inventaire pour la famille {famille}...\n")
-                self.root.update()
-                self.write_log(f"Création du fichier d'inventaire pour la famille {famille}...")
+                self.log_and_display(f"Création du fichier d'inventaire pour la famille {famille}...", 1)
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
                 with open(familleFile, 'w') as file:
                     for key in articlesDictionnary.keys():
@@ -226,10 +193,7 @@ class Inventaire:
                             file.write(f"{key};{articlesDictionnary[key]}\n")
 
             # Exécution de la fonction create_inventories
-            time.sleep(3)
-            self.text_box.insert(tk.END, "Lancement de la création des inventaires...\n")
-            self.root.update()
-            self.write_log("Lancement de la création des inventaires...")
+            self.log_and_display("Lancement de la création des inventaires par famille...", 3)
             self.create_inventories(famillesDirectory)
 
         except Exception as e:
@@ -266,6 +230,13 @@ class Inventaire:
         log_file = LOG_FILE
         with open(log_file, 'a') as f:
             f.write(f"{datetime.now()} - {message}\n")
+
+    def log_and_display(self, message, delay = 0):
+        if delay:
+            time.sleep(delay)
+        self.text_box.insert(tk.END, message + "\n")
+        self.root.update()
+        self.write_log(message)
 
 
 def database_connection():
