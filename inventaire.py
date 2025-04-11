@@ -93,6 +93,7 @@ class Inventaire:
     def launch_inventory(self):
         # Affichage du message de récupération du fichier d'inventaire
         self.text_box.insert(tk.END, "Récupération du fichier d'inventaire...\n")
+        self.root.update()
 
         # Récupération du fichier sélectionné
         filePath = self.InventoryfilePath.get()
@@ -108,6 +109,7 @@ class Inventaire:
 
         # Affichage du message de lecture du fichier d'inventaire
         self.text_box.insert(tk.END, "Lecture du fichier d'inventaire...\n")
+        self.root.update()
 
         # Lecture du fichier d'inventaire
         try:
@@ -116,6 +118,7 @@ class Inventaire:
 
             # Affichage du message de récupération des articles
             self.text_box.insert(tk.END, "Récupération des quantités de chaque article...\n")
+            self.root.update()
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articlesDictionnary = {}
@@ -129,16 +132,20 @@ class Inventaire:
             inventairesDirectory = "./inventaires"
             if not os.path.exists(inventairesDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {inventairesDirectory}...\n")
+                self.root.update()
                 os.makedirs(inventairesDirectory)
 
             # Affichage du message de création du fichier d'inventaire
+            self.root.update()
             self.text_box.insert(tk.END, "Création du dossier d'inventaire à la date du jour...\n")
 
             currentDate = datetime.now().strftime("%Y-%m-%d")
             self.text_box.insert(tk.END, f"Date d'inventaire : {currentDate}\n")
+            self.root.update()
             thisInventoryDirectory = os.path.join(inventairesDirectory, f"inventaire_{currentDate}")
             if not os.path.exists(thisInventoryDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {thisInventoryDirectory}...\n")
+                self.root.update()
                 os.makedirs(thisInventoryDirectory)
 
             # Création du fichier code;quantite
@@ -156,16 +163,19 @@ class Inventaire:
 
             # Affichage du message de création des fichiers d'inventaires par famille
             self.text_box.insert(tk.END, "Création du fichier d'inventaire par famille...\n")
+            self.root.update()
 
             # Création du dossier pour les familles
             famillesDirectory = os.path.join(thisInventoryDirectory, "familles")
             if not os.path.exists(famillesDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {famillesDirectory}...\n")
+                self.root.update()
                 os.makedirs(famillesDirectory)
 
             # Création de chaque fichier d'inventaire par famille
             for famille in familles:
                 self.text_box.insert(tk.END, f"Création du fichier d'inventaire pour la famille {famille}...\n")
+                self.root.update()
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
                 with open(familleFile, 'w') as file:
                     for key in articlesDictionnary.keys():
@@ -173,6 +183,8 @@ class Inventaire:
                             file.write(f"{key};{articlesDictionnary[key]}\n")
 
             # Exécution de la fonction create_inventories
+            self.text_box.insert(tk.END, "Lancement de la création des inventaires...\n")
+            self.root.update()
             self.create_inventories(famillesDirectory)
 
         except Exception as e:
@@ -193,6 +205,13 @@ class Inventaire:
 
         if not self.connection:
             self.connection = database_connection()
+
+        for file in files:
+            file_path = os.path.join(directory, file)
+            self.text_box.insert(tk.END, f"Traitement du fichier {file}...\n")
+            self.root.update()
+            with open(file_path, 'r') as f:
+                lines = f.readlines()
 
 
 
