@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
 import pyodbc
+from datetime import datetime
 
 class Inventaire:
     def __init__(self, root):
@@ -125,11 +126,23 @@ class Inventaire:
                 else:
                     articlesDictionnary[code] = 1
 
+            inventairesDirectory = "./inventaires"
+            if not os.path.exists(inventairesDirectory):
+                self.text_box.insert(tk.END, f"Création du dossier {inventairesDirectory}...\n")
+                os.makedirs(inventairesDirectory)
+
             # Affichage du message de création du fichier d'inventaire
-            self.text_box.insert(tk.END, "Création du fichier d'inventaire code;quantite...\n")
+            self.text_box.insert(tk.END, "Création du dossier d'inventaire à la date du jour...\n")
+
+            currentDate = datetime.now().strftime("%Y-%m-%d")
+            self.text_box.insert(tk.END, f"Date d'inventaire : {currentDate}\n")
+            thisInventoryDirectory = os.path.join(inventairesDirectory, f"inventaire_{currentDate}")
+            if not os.path.exists(thisInventoryDirectory):
+                self.text_box.insert(tk.END, f"Création du dossier {thisInventoryDirectory}...\n")
+                os.makedirs(thisInventoryDirectory)
 
             # Création du fichier code;quantite
-            outputFile = "inventaire_quantite.txt"
+            outputFile = os.path.join(thisInventoryDirectory, f"inventaire_{currentDate}.txt")
             with open(outputFile, 'w') as file:
                 for key, value in articlesDictionnary.items():
                     file.write(f"{key};{value}\n")
@@ -144,11 +157,13 @@ class Inventaire:
             # Affichage du message de création des fichiers d'inventaires par famille
             self.text_box.insert(tk.END, "Création du fichier d'inventaire par famille...\n")
 
-            # Création de chaque fichier d'inventaire par famille
-            famillesDirectory = "./inventaire_familles"
+            # Création du dossier pour les familles
+            famillesDirectory = os.path.join(thisInventoryDirectory, "familles")
             if not os.path.exists(famillesDirectory):
-                self.text_box.insert(tk.END, "Création du dossier /inventaire_familles...\n")
+                self.text_box.insert(tk.END, f"Création du dossier {famillesDirectory}...\n")
                 os.makedirs(famillesDirectory)
+
+            # Création de chaque fichier d'inventaire par famille
             for famille in familles:
                 self.text_box.insert(tk.END, f"Création du fichier d'inventaire pour la famille {famille}...\n")
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
