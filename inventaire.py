@@ -172,9 +172,29 @@ class Inventaire:
                         if self.get_famille(key) == famille:
                             file.write(f"{key};{articlesDictionnary[key]}\n")
 
+            # Exécution de la fonction create_inventories
+            self.create_inventories(famillesDirectory)
+
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
             return
+
+    def create_inventories(self, directory):
+        if not os.path.exists(directory):
+            messagebox.showerror("Erreur", "Le dossier d'inventaire n'existe pas.")
+            return
+
+        # Récupération de la liste des fichiers d'inventaire
+        files = []
+        for f in os.listdir(directory):
+            file_path = os.path.join(directory, f)
+            if os.path.isfile(file_path) and f.endswith(".txt"):
+                files.append(f)
+
+        if not self.connection:
+            self.connection = database_connection()
+
+
 
 def database_connection():
     try:
