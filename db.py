@@ -7,6 +7,8 @@
 import pyodbc
 from constantes import *
 
+# But : Créer une connexion avec la base de données.
+#       Retourne la connexion si celle réussie, None dans le cas contraire
 def database_connection():
     try:
         if DB_USER and DB_PASSWORD:

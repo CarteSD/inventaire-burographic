@@ -14,8 +14,13 @@ from constantes import *
 from db import *
 from utils import *
 
+# But : Classe de l'application métier, elle permet de faire
+#       le pont entre l'utilisateur et l'interface
 class Interface:
+
+    # CONSTRUCTEUR
     def __init__(self, root):
+        # Création de la fenêtre utilisateur
         self.root = root;
         self.root.title("BUROGRAPHIC - Inventaire")
         self.root.geometry("800x600")
@@ -30,11 +35,15 @@ class Interface:
         self.mainFrame.pack(fill=tk.BOTH, expand=True, anchor="w")
 
         # Création du message d'arrivée sur l'application
-        self.welcomeMessage = tk.Label(self.mainFrame, text="Bienvenue dans le module d'inventaire de BUROGRAPHIC",
-                                       font=("Arial", 16, "bold"))
-        self.description = tk.Label(self.mainFrame,
-                                    text="Ce module vous permet de créer un inventaire pour votre entreprise",
-                                    font=("Arial", 12))
+        self.welcomeMessage = tk.Label(
+            self.mainFrame, text="Bienvenue dans le module d'inventaire de BUROGRAPHIC",
+           font=("Arial", 16, "bold")
+        )
+        self.description = tk.Label(
+            self.mainFrame,
+            text="Ce module vous permet de créer un inventaire pour votre entreprise",
+            font=("Arial", 12)
+        )
         self.welcomeMessage.pack(pady=20)
         self.description.pack()
 
@@ -78,6 +87,8 @@ class Interface:
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
         self.text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+    # But : Méthode permettant de sélectionner un fichier dans
+    #       l'explorateur de fichiers
     def select_file(self):
         filename = filedialog.askopenfilename(
             title="Sélectionnez un fichier texte",
@@ -86,6 +97,7 @@ class Interface:
         if filename:
             self.InventoryFilePath.set(filename)
 
+    # But : Récupérer le code de la famille d'un article
     def get_famille(self, item):
         try:
             if not self.connection:
@@ -96,7 +108,7 @@ class Interface:
             cursor.execute(query, item)
             result = cursor.fetchone()
             if result:
-                return result[0].rstrip('.')  # Suppression du point final
+                return result[0].rstrip('.')
             else:
                 return None
 
@@ -105,6 +117,7 @@ class Interface:
             self.write_log(f"[ERREUR] {str(e)}")
             return None
 
+    # But : Lancer la création de l'inventaire
     def launch_inventory(self):
         # Vider la zone d'informations
         self.text_box.delete(1.0, tk.END)
@@ -223,6 +236,8 @@ class Interface:
             self.write_log(f"[ERREUR] {str(e)}")
             return
 
+    # But : Créer un inventaire pour cahcun des fichiers contenus
+    #       dans le dossier passé en paramètre
     def create_inventories(self, directory):
         if not os.path.exists(directory):
             messagebox.showerror("Erreur", f"Le dossier d'inventaire par famille {directory} n'existe pas.")
@@ -242,14 +257,17 @@ class Interface:
         for file in files:
             file_path = os.path.join(directory, file)
             log_and_display(f"Traitement de la famille {file.replace('.txt', '')}...", self.text_box, self.root, 1)
-            self.create_inventory_famille(file_path)
+            self.create_inventory_famille(file_path, file.replace(".txt", ""))
 
-    def create_inventory_famille(self, file):
+    # But : Créer un inventaire pour la famille passée en paramètre,
+    #       en y insérant tous les articles contenus dans le fichier
+    def create_inventory_famille(self, file, famille):
         with open(file, 'r') as f:
             lines = f.readlines()
             for line in lines:
-                self.insert_line_in_inventory(line)
+                self.insert_line_in_inventory(line, famille)
 
-    def insert_line_in_inventory(self, line):
+    # But : Insérer une ligne dans l'inventaire d'une famille passée en paramètre
+    def insert_line_in_inventory(self, line, famille):
         args = line.replace("\n", "").split(";")
         log_and_display(f"Insertion de l'article {args[0]} : quantité {args[1]}", self.text_box, self.root, 1)
