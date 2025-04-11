@@ -1,3 +1,4 @@
 .venv/
 inventaires/
 inventaire.log
+constantes.py

@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 import os
 import pyodbc
 from datetime import datetime
+from constantes import *
 
 class Inventaire:
     def __init__(self, root):
@@ -223,7 +224,7 @@ class Inventaire:
                 lines = f.readlines()
 
     def write_log(self, message):
-        log_file = "inventaire.log"
+        log_file = LOG_FILE
         with open(log_file, 'a') as f:
             f.write(f"{datetime.now()} - {message}\n")
 
@@ -231,9 +232,9 @@ class Inventaire:
 def database_connection():
     try:
         connection = pyodbc.connect(
-            "Driver={SQL Server};"
-            "Server=DESKTOP-D5H040D\\SAGEBAT;" 
-            "Database=BTG_DOS_SOC01;"
+            f"Driver={DB_DRIVER};"
+            f"Server={DB_SERVER};" 
+            f"Database={DB_NAME};"
             "Trusted_Connection=yes;"
         )
 
