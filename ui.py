@@ -14,7 +14,7 @@ from constantes import *
 from db import *
 from utils import *
 
-class Inventaire:
+class Interface:
     def __init__(self, root):
         self.root = root;
         self.root.title("BUROGRAPHIC - Inventaire")

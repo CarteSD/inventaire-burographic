@@ -7,5 +7,5 @@
 from ui import *
 
 root = tk.Tk()
-app = Inventaire(root)
+app = Interface(root)
 root.mainloop()
