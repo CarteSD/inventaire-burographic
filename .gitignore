@@ -2,3 +2,5 @@
 inventaires/
 inventaire.log
 constantes.py
+dist/
+build/
