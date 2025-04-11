@@ -73,7 +73,7 @@ class Inventaire:
             cursor.execute(query, item)
             result = cursor.fetchone()
             if result:
-                return result[0]
+                return result[0].rstrip('.')
             else:
                 return None
 
