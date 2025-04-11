@@ -73,7 +73,7 @@ class Inventaire:
             cursor.execute(query, item)
             result = cursor.fetchone()
             if result:
-                return result[0].rstrip('.')
+                return result[0].rstrip('.') # Suppression du point final
             else:
                 return None
 
@@ -116,11 +116,20 @@ class Inventaire:
 
             # Création du tableau des familles scannées
             familles = []
-
             for key in articlesDictionnary.keys():
                 famille = self.get_famille(key)
                 if famille is not None and famille not in familles:
                     familles.append(famille)
+
+            famillesDirectory = "./inventaire_familles"
+            if not os.path.exists(famillesDirectory):
+                os.makedirs(famillesDirectory)
+            for famille in familles:
+                familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
+                with open(familleFile, 'w') as file:
+                    for key in articlesDictionnary.keys():
+                        if self.get_famille(key) == famille:
+                            file.write(f"{key};{articlesDictionnary[key]}\n")
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
