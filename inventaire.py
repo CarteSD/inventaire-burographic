@@ -28,8 +28,8 @@ class Inventaire:
         self.fileSelectionFrame = tk.Frame(self.mainFrame)
         self.fileSelectionFrame.pack(fill=tk.X, pady=15)
 
-        self.file_label = tk.Label(self.fileSelectionFrame, text="Fichier sélectionné:", font=("Arial", 10))
-        self.file_label.pack(anchor=tk.W)
+        self.fileLabel = tk.Label(self.fileSelectionFrame, text="Fichier sélectionné:", font=("Arial", 10))
+        self.fileLabel.pack(anchor=tk.W)
 
         # Création du bouton pour choisir le fichier d'inventaire
         self.filePathEntry = tk.Entry(self.fileSelectionFrame, textvariable=self.InventoryfilePath, width=50)
@@ -54,6 +54,14 @@ class Inventaire:
         # Cadre pour les résultats
         self.results_frame = tk.Frame(self.mainFrame)
         self.results_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.text_scrollbar = tk.Scrollbar(self.results_frame)
+        self.text_box = tk.Text(self.results_frame, height=15, width=80, yscrollcommand=self.text_scrollbar.set, state="normal")
+        self.text_scrollbar.config(command=self.text_box.yview)
+
+        # Placement de la boîte de texte et de la barre de défilement
+        self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     def select_file(self):
         filename = filedialog.askopenfilename(
@@ -82,6 +90,9 @@ class Inventaire:
             return None
 
     def launch_inventory(self):
+        # Affichage du message de récupération du fichier d'inventaire
+        self.text_box.insert(tk.END, "Récupération du fichier d'inventaire...\n")
+
         # Récupération du fichier sélectionné
         filePath = self.InventoryfilePath.get()
         if not filePath:
@@ -94,10 +105,16 @@ class Inventaire:
             messagebox.showerror("Erreur", "Le fichier sélectionné n'est pas un fichier texte.")
             return
 
+        # Affichage du message de lecture du fichier d'inventaire
+        self.text_box.insert(tk.END, "Lecture du fichier d'inventaire...\n")
+
         # Lecture du fichier d'inventaire
         try:
             with open(filePath, 'r') as file:
                 rawDatas = file.readlines()
+
+            # Affichage du message de récupération des articles
+            self.text_box.insert(tk.END, "Récupération des quantités de chaque article...\n")
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articlesDictionnary = {}
@@ -107,6 +124,9 @@ class Inventaire:
                     articlesDictionnary[code] += 1
                 else:
                     articlesDictionnary[code] = 1
+
+            # Affichage du message de création du fichier d'inventaire
+            self.text_box.insert(tk.END, "Création du fichier d'inventaire code;quantite...\n")
 
             # Création du fichier code;quantite
             outputFile = "inventaire_quantite.txt"
@@ -121,10 +141,16 @@ class Inventaire:
                 if famille is not None and famille not in familles:
                     familles.append(famille)
 
+            # Affichage du message de création des fichiers d'inventaires par famille
+            self.text_box.insert(tk.END, "Création du fichier d'inventaire par famille...\n")
+
+            # Création de chaque fichier d'inventaire par famille
             famillesDirectory = "./inventaire_familles"
             if not os.path.exists(famillesDirectory):
+                self.text_box.insert(tk.END, "Création du dossier /inventaire_familles...\n")
                 os.makedirs(famillesDirectory)
             for famille in familles:
+                self.text_box.insert(tk.END, f"Création du fichier d'inventaire pour la famille {famille}...\n")
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
                 with open(familleFile, 'w') as file:
                     for key in articlesDictionnary.keys():
