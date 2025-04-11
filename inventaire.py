@@ -13,7 +13,7 @@ class Inventaire:
         self.connection = database_connection()
 
         # Variables pour le chemin du fichier d'inventaire
-        self.InventoryfilePath = tk.StringVar()
+        self.InventoryFilePath = tk.StringVar()
 
         # Création de la fenêtre principale
         self.mainFrame = tk.Frame(self.root, padx=10, pady=10)
@@ -33,7 +33,7 @@ class Inventaire:
         self.fileLabel.pack(anchor=tk.W)
 
         # Création du bouton pour choisir le fichier d'inventaire
-        self.filePathEntry = tk.Entry(self.fileSelectionFrame, textvariable=self.InventoryfilePath, width=50)
+        self.filePathEntry = tk.Entry(self.fileSelectionFrame, textvariable=self.InventoryFilePath, width=50)
         self.filePathEntry.pack(side=tk.LEFT, fill=tk.X, expand=True, pady=5)
 
         self.browseButton = tk.Button(self.fileSelectionFrame, text="Parcourir...", command=self.select_file)
@@ -70,7 +70,7 @@ class Inventaire:
             filetypes=(("Fichiers texte", "*.txt"), ("Tous les fichiers", "*.*"))
         )
         if filename:
-            self.InventoryfilePath.set(filename)
+            self.InventoryFilePath.set(filename)
 
     def get_famille(self, item):
         try:
@@ -88,15 +88,17 @@ class Inventaire:
 
         except pyodbc.Error as e:
             print(f"Erreur lors de la récupération de la famille : {e}")
+            self.write_log(f"[ERREUR] {e}")
             return None
 
     def launch_inventory(self):
         # Affichage du message de récupération du fichier d'inventaire
         self.text_box.insert(tk.END, "Récupération du fichier d'inventaire...\n")
         self.root.update()
+        self.write_log("Récupération du fichier d'inventaire...")
 
         # Récupération du fichier sélectionné
-        filePath = self.InventoryfilePath.get()
+        filePath = self.InventoryFilePath.get()
         if not filePath:
             messagebox.showerror("Erreur", "Veuillez sélectionner un fichier d'inventaire.")
             return
@@ -110,6 +112,7 @@ class Inventaire:
         # Affichage du message de lecture du fichier d'inventaire
         self.text_box.insert(tk.END, "Lecture du fichier d'inventaire...\n")
         self.root.update()
+        self.write_log("Lecture du fichier d'inventaire...")
 
         # Lecture du fichier d'inventaire
         try:
@@ -119,6 +122,7 @@ class Inventaire:
             # Affichage du message de récupération des articles
             self.text_box.insert(tk.END, "Récupération des quantités de chaque article...\n")
             self.root.update()
+            self.write_log("Récupération des quantités de chaque article...")
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articlesDictionnary = {}
@@ -133,11 +137,13 @@ class Inventaire:
             if not os.path.exists(inventairesDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {inventairesDirectory}...\n")
                 self.root.update()
+                self.write_log(f"Création du dossier {inventairesDirectory}...")
                 os.makedirs(inventairesDirectory)
 
             # Affichage du message de création du fichier d'inventaire
-            self.root.update()
             self.text_box.insert(tk.END, "Création du dossier d'inventaire à la date du jour...\n")
+            self.root.update()
+            self.write_log("Création du dossier d'inventaire à la date du jour...")
 
             currentDate = datetime.now().strftime("%Y-%m-%d")
             self.text_box.insert(tk.END, f"Date d'inventaire : {currentDate}\n")
@@ -146,6 +152,7 @@ class Inventaire:
             if not os.path.exists(thisInventoryDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {thisInventoryDirectory}...\n")
                 self.root.update()
+                self.write_log(f"Création du dossier {thisInventoryDirectory}...")
                 os.makedirs(thisInventoryDirectory)
 
             # Création du fichier code;quantite
@@ -161,21 +168,19 @@ class Inventaire:
                 if famille is not None and famille not in familles:
                     familles.append(famille)
 
-            # Affichage du message de création des fichiers d'inventaires par famille
-            self.text_box.insert(tk.END, "Création du fichier d'inventaire par famille...\n")
-            self.root.update()
-
             # Création du dossier pour les familles
             famillesDirectory = os.path.join(thisInventoryDirectory, "familles")
             if not os.path.exists(famillesDirectory):
                 self.text_box.insert(tk.END, f"Création du dossier {famillesDirectory}...\n")
                 self.root.update()
+                self.write_log(f"Création du dossier {famillesDirectory}...")
                 os.makedirs(famillesDirectory)
 
             # Création de chaque fichier d'inventaire par famille
             for famille in familles:
                 self.text_box.insert(tk.END, f"Création du fichier d'inventaire pour la famille {famille}...\n")
                 self.root.update()
+                self.write_log(f"Création du fichier d'inventaire pour la famille {famille}...")
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
                 with open(familleFile, 'w') as file:
                     for key in articlesDictionnary.keys():
@@ -185,15 +190,18 @@ class Inventaire:
             # Exécution de la fonction create_inventories
             self.text_box.insert(tk.END, "Lancement de la création des inventaires...\n")
             self.root.update()
+            self.write_log("Lancement de la création des inventaires...")
             self.create_inventories(famillesDirectory)
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
+            self.write_log(f"[ERREUR] {str(e)}")
             return
 
     def create_inventories(self, directory):
         if not os.path.exists(directory):
-            messagebox.showerror("Erreur", "Le dossier d'inventaire n'existe pas.")
+            messagebox.showerror("Erreur", f"Le dossier d'inventaire par famille {directory} n'existe pas.")
+            self.write_log("[ERREUR] Le dossier d'inventaire n'existe pas.")
             return
 
         # Récupération de la liste des fichiers d'inventaire
@@ -210,9 +218,14 @@ class Inventaire:
             file_path = os.path.join(directory, file)
             self.text_box.insert(tk.END, f"Traitement du fichier {file}...\n")
             self.root.update()
+            self.write_log("Traitement du fichier {file}...")
             with open(file_path, 'r') as f:
                 lines = f.readlines()
 
+    def write_log(self, message):
+        log_file = "inventaire.log"
+        with open(log_file, 'a') as f:
+            f.write(f"{datetime.now()} - {message}\n")
 
 
 def database_connection():
