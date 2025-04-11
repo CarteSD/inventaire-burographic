@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
+import pyodbc
 
 class Inventaire:
     def __init__(self, root):
@@ -97,6 +98,22 @@ class Inventaire:
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
             return
+
+def database_connection():
+    try:
+        connection = pyodbc.connect(
+            "Driver={SQL Server};"
+            "Server=DESKTOP-D5H040D\\SAGEBAT;" 
+            "Database=BTG_DOS_SOC01;"
+            "Trusted_Connection=yes;"
+        )
+
+        if connection:
+            print("Connexion réussie à la base de données SQL Server")
+            return connection
+    except pyodbc.Error as e:
+        print(f"Erreur lors de la connexion à SQL Server : {e}")
+        return None
 
 root = tk.Tk()
 app = Inventaire(root)
