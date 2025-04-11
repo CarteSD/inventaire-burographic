@@ -4,3 +4,4 @@ inventaire.log
 constantes.py
 dist/
 build/
+.idea/
