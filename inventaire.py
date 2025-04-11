@@ -9,6 +9,7 @@ class Inventaire:
         self.root.title("BUROGRAPHIC - Inventaire")
         self.root.geometry("800x600")
         self.root.iconbitmap("icone.ico")
+        self.connection = database_connection()
 
         # Variables pour le chemin du fichier d'inventaire
         self.InventoryfilePath = tk.StringVar()
@@ -64,11 +65,10 @@ class Inventaire:
 
     def get_famille(self, item):
         try:
-            connection = database_connection()
-            if not connection:
-                return "Erreur de connexion"
+            if not self.connection:
+                self.connection = database_connection()
 
-            cursor = connection.cursor()
+            cursor = self.connection.cursor()
             query = "SELECT Famille FROM ElementDef WHERE Code = ?"
             cursor.execute(query, item)
             result = cursor.fetchone()
