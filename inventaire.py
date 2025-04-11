@@ -231,12 +231,21 @@ class Inventaire:
 
 def database_connection():
     try:
-        connection = pyodbc.connect(
-            f"Driver={DB_DRIVER};"
-            f"Server={DB_SERVER};" 
-            f"Database={DB_NAME};"
-            "Trusted_Connection=yes;"
-        )
+        if DB_USER and DB_PASSWORD:
+            connection = pyodbc.connect(
+                f"Driver={DB_DRIVER};"
+                f"Server={DB_SERVER};"
+                f"Database={DB_NAME};"
+                f"UID={DB_USER};"
+                f"PWD={DB_PASSWORD};"
+            )
+        else:
+            connection = pyodbc.connect(
+                f"Driver={DB_DRIVER};"
+                f"Server={DB_SERVER};"
+                f"Database={DB_NAME};"
+                "Trusted_Connection=yes;"
+            )
 
         if connection:
             print("Connexion réussie à la base de données SQL Server")
