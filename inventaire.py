@@ -219,12 +219,8 @@ class Inventaire:
 
         for file in files:
             file_path = os.path.join(directory, file)
-            time.sleep(1)
-            self.text_box.insert(tk.END, f"Traitement du fichier {file}...\n")
-            self.root.update()
-            self.write_log(f"Traitement du fichier {file}...")
-            with open(file_path, 'r') as f:
-                lines = f.readlines()
+            self.log_and_display(f"Traitement de la famille {file.replace('.txt', '')}...", 1)
+            self.create_inventory_famille(file_path)
 
     def write_log(self, message):
         log_file = LOG_FILE
@@ -237,6 +233,16 @@ class Inventaire:
         self.text_box.insert(tk.END, message + "\n")
         self.root.update()
         self.write_log(message)
+
+    def create_inventory_famille(self, file):
+        with open(file, 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                self.insert_line_in_inventory(line)
+
+    def insert_line_in_inventory(self, line):
+        args = line.replace("\n", "").split(";")
+        self.log_and_display(f"Insertion de l'article {args[0]} : quantité {args[1]}", 1)
 
 
 def database_connection():
