@@ -1,3 +1,9 @@
+# # # # # # # # # # # #
+# But : Ce fichier contient l'ensemble des méthodes utilitaires autres
+# Par : Estéban DESESSARD - e.desessard@burographic.fr
+# Date : 11/04/2025
+# # # # # # # # # # # #
+
 import tkinter as tk
 import time
 from datetime import datetime
