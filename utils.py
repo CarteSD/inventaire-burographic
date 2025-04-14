@@ -22,3 +22,6 @@ def log_and_display(message, text_box, root, delay=0):
     text_box.insert(tk.END, message + "\n")
     root.update()
     write_log(message)
+
+def generate_report(datas):
+    return "name"

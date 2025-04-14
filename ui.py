@@ -87,6 +87,16 @@ class Interface:
         self.text_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
         self.text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+        # Initialisation du tableau de données pour le rapport d'exécution
+        self.reportDatas = {
+            "errors": {},
+            "familles": {},
+            "stats": {
+                "total_articles": 0,
+                "familles_count": 0
+            }
+        }
+
     # But : Méthode permettant de sélectionner un fichier dans
     #       l'explorateur de fichiers
     def select_file(self):
@@ -114,7 +124,7 @@ class Interface:
 
         except pyodbc.Error as e:
             messagebox.showerror("Erreur", f"Erreur lors de la récupération de la famille : {str(e)}")
-            self.write_log(f"[ERREUR] {str(e)}")
+            write_log(f"[ERREUR] {str(e)}")
             return None
 
     # But : Lancer la création de l'inventaire
@@ -201,13 +211,16 @@ class Interface:
                 famille = self.get_famille(key)
                 if famille is None:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
-                    skip = messagebox.askyesno("Dossier déjà existant",
-                                               f"La récupération de la famille pour l'article {key} a échoué.\nIl se peut que cet article ne soit pas enregsitré dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                    errorName = "Erreur de récupération"
+                    skip = messagebox.askyesno("Échec de récupération",
+                                               f"La récupération de la famille pour l'article {key} a échoué.\nIl se peut que cet article ne soit pas enregistré dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
+                        self.reportDatas["errors"][errorName] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données"
                         continue
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+                        self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
                         return
                 if famille not in familles:
                     familles.append(famille)
@@ -231,9 +244,16 @@ class Interface:
             log_and_display("Lancement de la création des inventaires par famille...", self.text_box, self.root, 3)
             self.create_inventories(famillesDirectory)
 
+            log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
+            log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
+
+            report = generate_report(self.reportDatas)
+
+            log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
+
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
-            self.write_log(f"[ERREUR] {str(e)}")
+            write_log(f"[ERREUR] {str(e)}")
             return
 
     # But : Créer un inventaire pour cahcun des fichiers contenus
@@ -270,4 +290,4 @@ class Interface:
     # But : Insérer une ligne dans l'inventaire d'une famille passée en paramètre
     def insert_line_in_inventory(self, line, famille):
         args = line.replace("\n", "").split(";")
-        log_and_display(f"Insertion de l'article {args[0]} : quantité {args[1]}", self.text_box, self.root, 1)
+        log_and_display(f"Insertion de l'article {args[0]} (quantité {args[1]}) dans la famille {famille}", self.text_box, self.root, 1)
