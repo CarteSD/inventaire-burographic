@@ -107,6 +107,46 @@ class Interface:
         if filename:
             self.InventoryFilePath.set(filename)
 
+    # But : Vérifier si un article existe dans la base de données
+    def article_exists(self, item):
+        try:
+            if not self.connection:
+                self.connection = database_connection()
+
+            cursor = self.connection.cursor()
+            query = "SELECT COUNT(*) FROM ElementDef WHERE Code = ?"
+            cursor.execute(query, item)
+            result = cursor.fetchone()
+            if result[0] > 0:
+                return True
+            else:
+                return False
+
+        except pyodbc.Error as e:
+            messagebox.showerror("Erreur", f"Erreur lors de la vérification de l'article : {str(e)}")
+            write_log(f"[ERREUR] {str(e)}")
+            return False
+
+    # But : Vérifier si une famille existe dans la base de données
+    def famille_exists(self, famille):
+        try:
+            if not self.connection:
+                self.connection = database_connection()
+
+            cursor = self.connection.cursor()
+            query = "SELECT COUNT(*) FROM FamilleArticle WHERE Code = ?"
+            cursor.execute(query, famille + ".")
+            result = cursor.fetchone()
+            if result[0] > 0:
+                return True
+            else:
+                return False
+
+        except pyodbc.Error as e:
+            messagebox.showerror("Erreur", f"Erreur lors de la vérification de la famille : {str(e)}")
+            write_log(f"[ERREUR] {str(e)}")
+            return False
+
     # But : Récupérer le code de la famille d'un article
     def get_famille(self, item):
         try:
@@ -208,21 +248,50 @@ class Interface:
             # Création du tableau des familles scannées
             familles = []
             for key in articlesDictionnary.keys():
+                # Vérification de l'existence de l'article
+                if not self.article_exists(key):
+                    log_and_display(f"L'article {key} n'existe pas dans la base de données", self.text_box, self.root)
+                    errorName = f"Article {key} inexistant"
+                    skip = messagebox.askyesno("Article inexistant",
+                                               f"L'article {key} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                    if skip:
+                        log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
+                        self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données."
+                        continue
+                    else:
+                        log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+                        self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {key}"
+                        return
+
+                # Récupération de la famille de l'article
                 famille = self.get_famille(key)
                 if famille is None:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
-                    errorName = "Erreur de récupération"
+                    errorName = f"Erreur de récupération de famille pour l'article {key}"
                     skip = messagebox.askyesno("Échec de récupération",
-                                               f"La récupération de la famille pour l'article {key} a échoué.\nIl se peut que cet article ne soit pas enregistré dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                                               f"La récupération de la famille pour l'article {key} a échoué.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données"
+                        self.reportDatas["errors"][errorName] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données. Ignoré, opération reprise."
                         continue
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
                         self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
                         return
                 if famille not in familles:
+                    if not self.famille_exists(famille):
+                        log_and_display(f"La famille {famille} n'existe pas dans la base de données", self.text_box, self.root)
+                        errorName = f"Famille {famille} inexistante"
+                        skip = messagebox.askyesno("Famille inexistante",
+                                                   f"La famille {famille} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                        if skip:
+                            log_and_display(f"Famille {famille} ignorée.", self.text_box, self.root, 0.5)
+                            self.reportDatas["errors"][errorName] = f"Famille {famille} absente en base de données. Ignoré, opération reprise"
+                            continue
+                        else:
+                            log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+                            self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de famille inexistante {famille}"
+                            return
                     familles.append(famille)
 
             # Création du dossier pour les familles
@@ -245,9 +314,11 @@ class Interface:
             self.create_inventories(famillesDirectory)
 
             log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
-            log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
 
+            # Génération du rapport d'exécution
+            log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
             report = generate_report(self.reportDatas)
+            print(report)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
 

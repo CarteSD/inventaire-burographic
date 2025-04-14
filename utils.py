@@ -24,4 +24,4 @@ def log_and_display(message, text_box, root, delay=0):
     write_log(message)
 
 def generate_report(datas):
-    return "name"
+    return datas
