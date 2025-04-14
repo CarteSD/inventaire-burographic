@@ -93,6 +93,7 @@ class Interface:
             "familles": {},
             "stats": {
                 "total_articles": 0,
+                "different_articles": 0,
                 "familles_count": 0
             }
         }
@@ -198,6 +199,9 @@ class Interface:
             # Affichage du message de récupération des articles
             log_and_display("Récupération des articles...", self.text_box, self.root, 1)
 
+            # Ajout du nombre d'article total au rapport d'exécution
+            self.reportDatas["stats"]["total_articles"] = len(rawDatas)
+
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articlesDictionnary = {}
             for code in rawDatas:
@@ -244,6 +248,7 @@ class Interface:
             with open(outputFile, 'w') as file:
                 for key, value in articlesDictionnary.items():
                     file.write(f"{key};{value}\n")
+                    self.reportDatas["stats"]["different_articles"] += 1
 
             # Création du tableau des familles scannées
             familles = []
@@ -293,6 +298,9 @@ class Interface:
                             self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de famille inexistante {famille}"
                             return
                     familles.append(famille)
+
+            # Ajout du nombre de familles au rapport d'exécution
+            self.reportDatas["stats"]["familles_count"] = len(familles)
 
             # Création du dossier pour les familles
             famillesDirectory = os.path.join(thisInventoryDirectory, "familles")
