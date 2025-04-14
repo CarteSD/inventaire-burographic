@@ -13,6 +13,7 @@ from tkinter import filedialog, messagebox
 from constantes import *
 from db import *
 from utils import *
+import webbrowser
 
 # But : Classe de l'application métier, elle permet de faire
 #       le pont entre l'utilisateur et l'interface
@@ -265,9 +266,14 @@ class Interface:
             # Génération du rapport d'exécution
             log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
             report = generate_report(self.reportDatas)
-            print(report)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
+            userWantOpen = messagebox.askyesno("Rapport généré",
+                                                   f"Le rapport d'exécution d'inventaire a été généré à l'emplacement {report}.\n\n Souhaitez-vous l'ouvrir ?")
+            if userWantOpen:
+                log_and_display(f"Ouverture du rapport d'exécution...", self.text_box, self.root)
+                webbrowser.open(f"file:///{os.path.abspath(report)}")
+
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
