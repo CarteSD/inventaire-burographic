@@ -108,66 +108,6 @@ class Interface:
         if filename:
             self.InventoryFilePath.set(filename)
 
-    # But : Vérifier si un article existe dans la base de données
-    def article_exists(self, item):
-        try:
-            if not self.connection:
-                self.connection = database_connection()
-
-            cursor = self.connection.cursor()
-            query = "SELECT COUNT(*) FROM ElementDef WHERE Code = ?"
-            cursor.execute(query, item)
-            result = cursor.fetchone()
-            if result[0] > 0:
-                return True
-            else:
-                return False
-
-        except pyodbc.Error as e:
-            messagebox.showerror("Erreur", f"Erreur lors de la vérification de l'article : {str(e)}")
-            write_log(f"[ERREUR] {str(e)}")
-            return False
-
-    # But : Vérifier si une famille existe dans la base de données
-    def famille_exists(self, famille):
-        try:
-            if not self.connection:
-                self.connection = database_connection()
-
-            cursor = self.connection.cursor()
-            query = "SELECT COUNT(*) FROM FamilleArticle WHERE Code = ?"
-            cursor.execute(query, famille + ".")
-            result = cursor.fetchone()
-            if result[0] > 0:
-                return True
-            else:
-                return False
-
-        except pyodbc.Error as e:
-            messagebox.showerror("Erreur", f"Erreur lors de la vérification de la famille : {str(e)}")
-            write_log(f"[ERREUR] {str(e)}")
-            return False
-
-    # But : Récupérer le code de la famille d'un article
-    def get_famille(self, item):
-        try:
-            if not self.connection:
-                self.connection = database_connection()
-
-            cursor = self.connection.cursor()
-            query = "SELECT Famille FROM ElementDef WHERE Code = ?"
-            cursor.execute(query, item)
-            result = cursor.fetchone()
-            if result:
-                return result[0].rstrip('.')
-            else:
-                return None
-
-        except pyodbc.Error as e:
-            messagebox.showerror("Erreur", f"Erreur lors de la récupération de la famille : {str(e)}")
-            write_log(f"[ERREUR] {str(e)}")
-            return None
-
     # But : Lancer la création de l'inventaire
     def launch_inventory(self):
         # Vider la zone d'informations
@@ -254,7 +194,7 @@ class Interface:
             familles = []
             for key in articlesDictionnary.keys():
                 # Vérification de l'existence de l'article
-                if not self.article_exists(key):
+                if not article_exists(self.connection, key):
                     log_and_display(f"L'article {key} n'existe pas dans la base de données", self.text_box, self.root)
                     errorName = f"Article {key} inexistant"
                     skip = messagebox.askyesno("Article inexistant",
@@ -269,7 +209,7 @@ class Interface:
                         return
 
                 # Récupération de la famille de l'article
-                famille = self.get_famille(key)
+                famille = get_famille(self.connection, key)
                 if famille is None:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
                     errorName = f"Erreur de récupération de famille pour l'article {key}"
@@ -284,7 +224,7 @@ class Interface:
                         self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
                         return
                 if famille not in familles:
-                    if not self.famille_exists(famille):
+                    if not famille_exists(self.connection, famille):
                         log_and_display(f"La famille {famille} n'existe pas dans la base de données", self.text_box, self.root)
                         errorName = f"Famille {famille} inexistante"
                         skip = messagebox.askyesno("Famille inexistante",
@@ -314,7 +254,7 @@ class Interface:
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
                 with open(familleFile, 'w') as file:
                     for key in articlesDictionnary.keys():
-                        if self.get_famille(key) == famille:
+                        if get_famille(self.connection, key) == famille:
                             file.write(f"{key};{articlesDictionnary[key]}\n")
 
             # Exécution de la fonction create_inventories

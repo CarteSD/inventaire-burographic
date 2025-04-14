@@ -5,7 +5,7 @@
 # # # # # # # # # # # #
 
 import pyodbc
-from constantes import *
+from utils import *
 
 # But : Créer une connexion avec la base de données.
 #       Retourne la connexion si celle réussie, None dans le cas contraire
@@ -32,4 +32,52 @@ def database_connection():
             return connection
     except pyodbc.Error as e:
         print(f"Erreur lors de la connexion à SQL Server : {e}")
+        return None
+
+# But : Vérifier si un article existe dans la base de données
+def article_exists(connection, item):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT COUNT(*) FROM ElementDef WHERE Code = ?"
+        cursor.execute(query, item)
+        result = cursor.fetchone()
+        if result[0] > 0:
+            return True
+        else:
+            return False
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return False
+
+# But : Vérifier si une famille existe dans la base de données
+def famille_exists(connection, famille):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT COUNT(*) FROM FamilleArticle WHERE Code = ?"
+        cursor.execute(query, famille + ".")
+        result = cursor.fetchone()
+        if result[0] > 0:
+            return True
+        else:
+            return False
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return False
+
+# But : Récupérer le code de la famille d'un article
+def get_famille(connection, item):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT Famille FROM ElementDef WHERE Code = ?"
+        cursor.execute(query, item)
+        result = cursor.fetchone()
+        if result:
+            return result[0].rstrip('.')
+        else:
+            return None
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
         return None
