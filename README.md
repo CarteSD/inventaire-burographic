@@ -1,0 +1,75 @@
+# Module d'inventaire Python pour Batigest Connect
+Ce module permet le traitement automatique d'un fichier texte extrait d'une douchette, en vue de l'importer dans Batigest Connect. Il est conçu pour fonctionner avec un fichier texte contenant l'ensemble des références scannées, séparées par un retour à la ligne.
+
+## Fonctionnement 
+Le traitement du fichier se fait en XX étapes majeures :
+### 1. **Lecture du fichier texte** :  
+
+Le fichier texte est ouvert et lu ligne par ligne et converti sous forme de fichier recensant `code:quantité`.  
+
+*Fichier importé :*
+```
+ABCDEFGHI
+ABCDEFGHI
+123456789
+ABCDEFGHI
+123456789
+```
+
+*Fichier traité :*
+```
+ABCDEFGHI;3
+123456789;2
+```
+
+Cela permet de connaître la quantité scannée de chaque article.
+
+### 2. **Récupération des familles d'articles** : 
+
+Le fichier généré est parcouru, et la famille de chaque article est récupérée depuis la base de données de Batigest Connect. Si cette famille n'avait pas encore été récupérée, elle est ajoutée à un tableau recensant toutes les familles différentes.
+
+### 3. **Création du fichier d'inventaire pour chaque famille** :
+
+Chaque famille fera l'objet d'un fichier texte à son nom, et un fichier d'inventaire pour chaque famille sera créé dans le répertoire de destination. Le fichier d'inventaire contiendra les articles de la famille, ainsi que leur quantité scannée.
+
+### 4. **Création des inventaires en base de données** :
+
+Pour chaque famille, un inventaire sera créé dans la base de données de Batigest Connect. Le fichier d'inventaire de famille sera lu, et chaque article sera ajouté à l'inventaire créé précédemment.
+
+### 5. **Édition d'un rapport de fin d'exécution** :
+
+Durant toute l'exécution, les différentes erreurs sont relevées et enregistrées dans un fichier de log. De plus, à la fin de l'exécution, un rapport sous format HTML / CSS est généré pour que l'utilisateur puisse relever plus facilement les erreurs, ou bien les différentes informations sur l'inventaire réalisé.
+
+## Déploiement
+
+Afin de déployer ce module, assurez-vous d'avoir Python 3.7 ou supérieur installé sur votre machine. Vous pouvez le télécharger depuis le site officiel de Python : [python.org](https://www.python.org/downloads/).  
+Il est également nécessaire d'avoir Git installé sur sa machine pour cloner ce dépôt GitHub. Vous pouvez le télécharger depuis le site officiel de Git : [git-scm.com](https://git-scm.com/downloads).
+
+### 1. **Cloner le dépôt** :
+Ouvrez un terminal et exécutez la commande suivante pour cloner le dépôt :
+```bash
+git clone https://github.com/CarteSD/inventaire-burographic.git
+cd inventaire-burographic
+```
+
+### 2. **Modifier le fichier de constantes** :
+Avant de lancer le module, il est nécessaire de modifier le fichier `constantes.example.py` pour y indiquer les chemins d'accès aux fichiers et répertoires nécessaires au bon fonctionnement du module. Une fois fait, renommer le en `constantes.py`.
+
+### 3. **Installer les dépendances** :
+Installez les dépendances nécessaires en exécutant la commande suivante :
+```bash
+pip install -r requirements.txt
+```
+
+### 4. **Lancer le module** :
+Une fois les dépendances installées, vous pouvez lancer le module en exécutant la commande suivante :
+```bash
+python main.py
+```
+
+Vous pouvez également construire l'exécutable afin de pouvoir lancer le module depuis le chemin que vous souhaitez :
+```bash
+pyinstaller --onefile --windowed --icon=icone.ico --add-data "constantes.py;." --add-data "icone.ico;." --name "BUROGRAPHIC_Inventaire" main.py
+```
+
+Une fois la compilation terminée, l'exécutable se retrouve dans le dossier `/dist`. Vous pouvez le déplacer où vous le souhaitez.
