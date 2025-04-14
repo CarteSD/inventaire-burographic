@@ -89,10 +89,10 @@ def create_inventory_famille(connection, file, famille):
     with open(file, 'r') as f:
         lines = f.readlines()
         for line in lines:
-            insert_line_in_inventory(line, famille)
+            insert_line_in_inventory(connection, line, famille)
 
 # But : Insérer une ligne dans l'inventaire d'une famille passée en paramètre
 def insert_line_in_inventory(connection, line, famille):
     args = line.replace("\n", "").split(";")
-    log_and_display(f"Insertion de l'article {args[0]} (quantité {args[1]}) dans la famille {famille}", self.text_box, self.root, 1)
+    write_log(f"Insertion de l'article {args[0]} (quantité {args[1]}) dans la famille {famille}")
     # INSERTION DANS LA BASE DE DONNÉES
