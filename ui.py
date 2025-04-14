@@ -90,7 +90,6 @@ class Interface:
         # Initialisation du tableau de données pour le rapport d'exécution
         self.reportDatas = {
             "errors": {},
-            "familles": {},
             "stats": {
                 "total_articles": 0,
                 "different_articles": 0,
