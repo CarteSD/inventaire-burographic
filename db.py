@@ -81,3 +81,18 @@ def get_famille(connection, item):
     except pyodbc.Error as e:
         write_log(f"[ERREUR] {str(e)}")
         return None
+
+# But : Créer un inventaire pour la famille passée en paramètre,
+#       en y insérant tous les articles contenus dans le fichier
+def create_inventory_famille(connection, file, famille):
+    # CRÉATION DANS LA BASE DE DONNÉES
+    with open(file, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            insert_line_in_inventory(line, famille)
+
+# But : Insérer une ligne dans l'inventaire d'une famille passée en paramètre
+def insert_line_in_inventory(connection, line, famille):
+    args = line.replace("\n", "").split(";")
+    log_and_display(f"Insertion de l'article {args[0]} (quantité {args[1]}) dans la famille {famille}", self.text_box, self.root, 1)
+    # INSERTION DANS LA BASE DE DONNÉES

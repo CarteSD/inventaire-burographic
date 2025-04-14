@@ -279,8 +279,7 @@ class Interface:
     #       dans le dossier passé en paramètre
     def create_inventories(self, directory):
         if not os.path.exists(directory):
-            messagebox.showerror("Erreur", f"Le dossier d'inventaire par famille {directory} n'existe pas.")
-            self.write_log("[ERREUR] Le dossier d'inventaire n'existe pas.")
+            log_and_display(f"Le dossier d'inventaire par famille {directory} n'existe pas.", self.text_box, self.root, 1)
             return
 
         # Récupération de la liste des fichiers d'inventaire
@@ -296,17 +295,4 @@ class Interface:
         for file in files:
             file_path = os.path.join(directory, file)
             log_and_display(f"Traitement de la famille {file.replace('.txt', '')}...", self.text_box, self.root, 1)
-            self.create_inventory_famille(file_path, file.replace(".txt", ""))
-
-    # But : Créer un inventaire pour la famille passée en paramètre,
-    #       en y insérant tous les articles contenus dans le fichier
-    def create_inventory_famille(self, file, famille):
-        with open(file, 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                self.insert_line_in_inventory(line, famille)
-
-    # But : Insérer une ligne dans l'inventaire d'une famille passée en paramètre
-    def insert_line_in_inventory(self, line, famille):
-        args = line.replace("\n", "").split(";")
-        log_and_display(f"Insertion de l'article {args[0]} (quantité {args[1]}) dans la famille {famille}", self.text_box, self.root, 1)
+            create_inventory_famille(self.connection, file_path, file.replace(".txt", ""))
