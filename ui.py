@@ -178,34 +178,35 @@ class Interface:
             undefinedArticles = []
             for code in rawDatas:
                 code = code.replace("\n", "")
-                if not article_exists(self.connection, code) and code not in undefinedArticles:
-                    # Vérification de l'existence de l'article dans la base de données
-                    log_and_display(f"L'article {code} n'existe pas dans la base de données", self.text_box, self.root)
-                    errorName = f"Article {code} inexistant"
-                    skip = messagebox.askyesno("Article inexistant", f"L'article {code} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
-                    if skip:
-                        undefinedArticles.append(code)
-                        log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
-                        indexation = list(articlesDictionnary.keys())
-                        indexActuel = rawDatas.index(code + '\n')
-                        if indexActuel == 0:
-                            articleSuivant = rawDatas[indexActuel + 1]
-                            self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
-                        elif indexActuel == len(rawDatas) - 1:
-                            articlePrecedent = rawDatas[indexActuel - 1]
-                            self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
+                # Vérification de l'existence de l'article dans la base de données
+                if not article_exists(self.connection, code):
+                    if code not in undefinedArticles:
+                        log_and_display(f"L'article {code} n'existe pas dans la base de données", self.text_box, self.root)
+                        errorName = f"Article {code} inexistant"
+                        skip = messagebox.askyesno("Article inexistant", f"L'article {code} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                        if skip:
+                            undefinedArticles.append(code)
+                            log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
+                            indexation = list(articlesDictionnary.keys())
+                            indexActuel = rawDatas.index(code + '\n')
+                            if indexActuel == 0:
+                                articleSuivant = rawDatas[indexActuel + 1]
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
+                            elif indexActuel == len(rawDatas) - 1:
+                                articlePrecedent = rawDatas[indexActuel - 1]
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
+                            else:
+                                articleSuivant = rawDatas[indexActuel + 1]
+                                articlePrecedent = rawDatas[indexActuel - 1]
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
+                            continue
                         else:
-                            articleSuivant = rawDatas[indexActuel + 1]
-                            articlePrecedent = rawDatas[indexActuel - 1]
-                            self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
-                        continue
-                    else:
-                        log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {key}"
+                            log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+                            self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {code}"
 
-                        # Nettoyage du dossier temporaire
-                        shutil.rmtree(tempInventoryDirectory)
-                        return
+                            # Nettoyage du dossier temporaire
+                            shutil.rmtree(tempInventoryDirectory)
+                            return
                 else:
                     if code in articlesDictionnary:
                         articlesDictionnary[code] += 1
@@ -320,6 +321,7 @@ class Interface:
 
     # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correctStock):
+        print(correctStock)
         # Récupérer tous les articles de la base de données
         allArticles = get_all_articles(self.connection)
 
