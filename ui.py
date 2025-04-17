@@ -185,7 +185,7 @@ class Interface:
 
             # Création du fichier code;quantite
             outputFile = os.path.join(thisInventoryDirectory, f"inventaire_{currentDate}.txt")
-            with open(outputFile, 'w') as file:
+            with open(outputFile, 'w', encoding='utf-8') as file:
                 for key, value in articlesDictionnary.items():
                     file.write(f"{key};{value}\n")
                     self.reportDatas["stats"]["different_articles"] += 1
@@ -252,7 +252,7 @@ class Interface:
             for famille in familles:
                 log_and_display(f"Création du fichier d'inventaire pour la famille {famille}...", self.text_box, self.root, 1)
                 familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
-                with open(familleFile, 'w') as file:
+                with open(familleFile, 'w', encoding='utf-8') as file:
                     for key in articlesDictionnary.keys():
                         if get_famille(self.connection, key) == famille:
                             file.write(f"{key};{articlesDictionnary[key]}\n")

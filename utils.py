@@ -12,7 +12,7 @@ from constantes import *
 # But : Écrire un message dans le fichier de log
 def write_log(message):
     log_file = LOG_FILE
-    with open(log_file, 'a') as f:
+    with open(log_file, 'a', encoding='utf-8') as f:
         f.write(f"{datetime.now()} - {message}\n")
 
 # But : Écrire un message sur l'interface utilisateur et dans le fichier de log
