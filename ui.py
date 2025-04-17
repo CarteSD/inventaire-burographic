@@ -187,16 +187,16 @@ class Interface:
                         undefinedArticles.append(code)
                         log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
                         indexation = list(articlesDictionnary.keys())
-                        indexActuel = indexation.index(code)
+                        indexActuel = rawDatas.index(code + '\n')
                         if indexActuel == 0:
-                            articleSuivant = indexation[indexActuel + 1]
+                            articleSuivant = rawDatas[indexActuel + 1]
                             self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
-                        elif indexActuel == len(indexation) - 1:
-                            articlePrecedent = indexation[indexActuel - 1]
+                        elif indexActuel == len(rawDatas) - 1:
+                            articlePrecedent = rawDatas[indexActuel - 1]
                             self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
                         else:
-                            articleSuivant = indexation[indexActuel + 1]
-                            articlePrecedent = indexation[indexActuel - 1]
+                            articleSuivant = rawDatas[indexActuel + 1]
+                            articlePrecedent = rawDatas[indexActuel - 1]
                             self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
                         continue
                     else:
@@ -224,7 +224,7 @@ class Interface:
             for key in articlesDictionnary.keys():
                 # Récupération de la famille de l'article
                 famille = get_famille(self.connection, key)
-                if famille is None:
+                if famille is None and key not in undefinedArticles:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
                     errorName = f"Erreur de récupération de famille pour l'article {key}"
                     skip = messagebox.askyesno("Échec de récupération",
