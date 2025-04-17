@@ -201,7 +201,18 @@ class Interface:
                                                f"L'article {key} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données."
+                        indexation = list(articlesDictionnary.keys())
+                        indexActuel = indexation.index(key)
+                        if indexActuel == 0:
+                            articleSuivant = indexation[indexActuel + 1]
+                            self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
+                        elif indexActuel == len(indexation) - 1:
+                            articlePrecedent = indexation[indexActuel - 1]
+                            self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
+                        else:
+                            articleSuivant = indexation[indexActuel + 1]
+                            articlePrecedent = indexation[indexActuel - 1]
+                            self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
                         continue
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
