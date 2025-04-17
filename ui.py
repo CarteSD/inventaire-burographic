@@ -163,29 +163,27 @@ class Interface:
             currentDate = datetime.now().strftime("%Y-%m-%d")
             log_and_display(f"Date d'inventaire : {currentDate}", self.text_box, self.root)
             thisInventoryDirectory = os.path.join(inventairesDirectory, f"inventaire_{currentDate}")
+            tempInventoryDirectory = os.path.join(inventairesDirectory, f"temp_inventaire_{currentDate}_{int(time.time())}")
 
-            if not os.path.exists(thisInventoryDirectory):
-                log_and_display(f"Création du dossier {thisInventoryDirectory}...", self.text_box, self.root, 0.5)
-                os.makedirs(thisInventoryDirectory)
-            else:
+            inventoryExists = os.path.exists(thisInventoryDirectory)
+            
+            # Création du dossier temporaire pour préparer le nouvel inventaire
+            log_and_display(f"Création du dossier temporaire {tempInventoryDirectory}...", self.text_box, self.root, 0.5)
+            os.makedirs(tempInventoryDirectory)
+
+            if inventoryExists:
                 log_and_display(f"Le dossier {thisInventoryDirectory} existe déjà", self.text_box, self.root, 0.5)
-
                 time.sleep(2)
-                overwrite = messagebox.askyesno("Dossier déjà existant",
-                                                f"Le dossier {thisInventoryDirectory} existe déjà. Voulez-vous l'écraser ?")
-
-                if overwrite:
-                    log_and_display(f"Suppression du dossier {thisInventoryDirectory}...", self.text_box, self.root, 0.5)
-                    shutil.rmtree(thisInventoryDirectory)
-
-                    log_and_display(f"Réécriture du dossier {thisInventoryDirectory}...", self.text_box, self.root, 0.5)
-                    os.makedirs(thisInventoryDirectory)
-                else:
+                overwrite = messagebox.askyesno("Dossier déjà existant", f"Le dossier {thisInventoryDirectory} existe déjà. Voulez-vous l'écraser ?")
+                if not overwrite:
                     log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+
+                    # Nettoyage du dossier temporaire
+                    shutil.rmtree(tempInventoryDirectory)
                     return
 
-            # Création du fichier code;quantite
-            outputFile = os.path.join(thisInventoryDirectory, f"inventaire_{currentDate}.txt")
+            # Création du fichier code;quantite dans le dossier temporaire
+            outputFile = os.path.join(tempInventoryDirectory, f"inventaire_{currentDate}.txt")
             with open(outputFile, 'w', encoding='utf-8') as file:
                 for key, value in articlesDictionnary.items():
                     file.write(f"{key};{value}\n")
@@ -198,8 +196,7 @@ class Interface:
                 if not article_exists(self.connection, key):
                     log_and_display(f"L'article {key} n'existe pas dans la base de données", self.text_box, self.root)
                     errorName = f"Article {key} inexistant"
-                    skip = messagebox.askyesno("Article inexistant",
-                                               f"L'article {key} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                    skip = messagebox.askyesno("Article inexistant", f"L'article {key} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
                         indexation = list(articlesDictionnary.keys())
@@ -218,6 +215,9 @@ class Interface:
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
                         self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {key}"
+
+                        # Nettoyage du dossier temporaire
+                        shutil.rmtree(tempInventoryDirectory)
                         return
 
                 # Récupération de la famille de l'article
@@ -226,7 +226,7 @@ class Interface:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
                     errorName = f"Erreur de récupération de famille pour l'article {key}"
                     skip = messagebox.askyesno("Échec de récupération",
-                                               f"La récupération de la famille pour l'article {key} a échoué.\n\n Voulez-vous l'ignorer et continuer ?")
+                                            f"La récupération de la famille pour l'article {key} a échoué.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
                         self.reportDatas["errors"][errorName] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données. Ignoré, opération reprise."
@@ -234,13 +234,16 @@ class Interface:
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
                         self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
+
+                        # Nettoyage du dossier temporaire
+                        shutil.rmtree(tempInventoryDirectory)
                         return
                 if famille not in familles:
                     if not famille_exists(self.connection, famille):
                         log_and_display(f"La famille {famille} n'existe pas dans la base de données", self.text_box, self.root)
                         errorName = f"Famille {famille} inexistante"
                         skip = messagebox.askyesno("Famille inexistante",
-                                                   f"La famille {famille} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                                                f"La famille {famille} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                         if skip:
                             log_and_display(f"Famille {famille} ignorée.", self.text_box, self.root, 0.5)
                             self.reportDatas["errors"][errorName] = f"Famille {famille} absente en base de données. Ignoré, opération reprise"
@@ -248,14 +251,17 @@ class Interface:
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
                             self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de famille inexistante {famille}"
+
+                            # Nettoyage du dossier temporaire
+                            shutil.rmtree(tempInventoryDirectory)
                             return
                     familles.append(famille)
 
             # Ajout du nombre de familles au rapport d'exécution
             self.reportDatas["stats"]["familles_count"] = len(familles)
 
-            # Création du dossier pour les familles
-            famillesDirectory = os.path.join(thisInventoryDirectory, "familles")
+            # Création du dossier pour les familles dans le dossier temporaire
+            famillesDirectory = os.path.join(tempInventoryDirectory, "familles")
             if not os.path.exists(famillesDirectory):
                 log_and_display(f"Création du dossier {famillesDirectory}...", self.text_box, self.root, 0.5)
                 os.makedirs(famillesDirectory)
@@ -273,6 +279,18 @@ class Interface:
             log_and_display("Lancement de la mise à jour des stocks", self.text_box, self.root, 3)
             self.update_stock(articlesDictionnary)
 
+            # Remplacer l'ancien inventaire si nécessaire
+            if inventoryExists:
+                log_and_display("Tout s'est bien passé, remplacement de l'ancien inventaire...", self.text_box, self.root, 1)
+                
+                # Supprimer l'ancien dossier d'inventaire
+                log_and_display(f"Suppression de l'ancien inventaire {thisInventoryDirectory}...", self.text_box, self.root, 0.5)
+                shutil.rmtree(thisInventoryDirectory)
+            
+            # Renommer le dossier temporaire en dossier final
+            log_and_display(f"Finalisation de l'inventaire...", self.text_box, self.root, 0.5)
+            shutil.move(tempInventoryDirectory, thisInventoryDirectory)
+
             log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
 
             # Génération du rapport d'exécution
@@ -281,16 +299,21 @@ class Interface:
             report = generate_report(self.reportDatas)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
-            userWantOpen = messagebox.askyesno("Rapport généré",
-                                                   f"Le rapport d'exécution d'inventaire a été généré à l'emplacement {report}.\n\n Souhaitez-vous l'ouvrir ?")
+            userWantOpen = messagebox.askyesno("Rapport généré", f"Le rapport d'exécution d'inventaire a été généré à l'emplacement {report}.\n\n Souhaitez-vous l'ouvrir ?")
             if userWantOpen:
                 log_and_display(f"Ouverture du rapport d'exécution...", self.text_box, self.root)
                 webbrowser.open(f"file:///{os.path.abspath(report)}")
 
-
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
             write_log(f"[ERREUR] {str(e)}")
+            # En cas d'erreur, nettoyer le dossier temporaire s'il existe
+            if os.path.exists(tempInventoryDirectory):
+                try:
+                    shutil.rmtree(tempInventoryDirectory)
+                    log_and_display(f"Nettoyage du dossier temporaire suite à une erreur", self.text_box, self.root)
+                except:
+                    pass
             return
 
     # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
