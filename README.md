@@ -1,8 +1,12 @@
 # Module d'inventaire Python pour Batigest Connect
-Ce module permet le traitement automatique d'un fichier texte extrait d'une douchette, en vue de l'importer dans Batigest Connect. Il est conçu pour fonctionner avec un fichier texte contenant l'ensemble des références scannées, séparées par un retour à la ligne.
+Ce module permet le traitement automatique d'un fichier texte extrait d'une douchette, en vue de l'importer dans Batigest Connect. Il est conçu pour fonctionner avec un fichier texte contenant l'ensemble des références scannées, séparées par un retour à la ligne.  
+
+Celui-ci a été réalisé dans le cadre d'un stage en entreprise chez Burographic. En pleine transition de logiciel de gestion interne, il a fallu recréer leur module d'automisation d'inventaire annuel. Après avoir échangé avec les intéressés (secrétaires et directeur), j'ai pu me lancer dans la création de ce module du début à la fin, en prenant en main la base de données internes de Batigest Connect.
 
 ## Fonctionnement 
-Le traitement du fichier se fait **en 4 étapes** majeures :
+Avant d'effectuer le traitement même du fichier, le programme vérifie qu'un inventaire n'ait pas déjà été effectué à la date du jour. Si tel est le cas, il propose à l'utilisateur d'écraser l'ancien inventaire ou d'interrompre le procédé.
+
+Le traitement du fichier se fait **en 5 étapes** majeures :
 ### 1. **Lecture du fichier texte** :  
 
 Le fichier texte est ouvert et lu ligne par ligne et converti sous forme de fichier recensant `code:quantité`.  
@@ -40,6 +44,23 @@ Le stock est géré par deux tables différentes, l'une recense l'ensemble des m
 Afin de corriger les différences, le programme calcule la valeur aboslue de la différence entre la quantité en stock (récupérer en soustrayant la quantité approvisonnée à la quantité consommée) et la quantité scanné par les secrétaires. Il créé par la suite le mouvement de stock adapté avec la différence calculée.
 
 Une fois ce mouvement de stock inséré, la table recensant les articles avec leur apprivisonnement et leur consommation est à son tour modifiée. Selon le mouvement de stock effectué auparavant, le programme modifie automatiquement la quantité concernée (approvsionnée ou consommée).
+
+### 5. **Génération du rapport de fin d'exécution** :
+
+Une fois la réalisation complète de l'inventaire terminée, le programme écrit un rapport d'exécution à destination de l'utilisateur, afin de consulter les différentes statistiques telles que le nombre d'articles traités ou les erreurs survenues durant le déroulé.
+
+## Fonctionnalités
+
+Le programme répond à quelques questions de sûreté et de cohérence des données :
+- Vérification de l'existence de chaque article avant de le traiter
+- Vérification de l'existence de chaque famille d'article
+- Création de l'inventaire dans un dossier temporaire, supprimé en cas d'interruption du programme
+
+Il permet également à l'utilisateur de comprendre et de suivre le déroulé du traitement :
+- Affichage de la succession des tâches réalisées
+- Utilisation de boîtes de dialogue lors de choix à réaliser
+- Édition d'un rapport d'exécution à la fin du traitement
+
 
 ## Déploiement
 
