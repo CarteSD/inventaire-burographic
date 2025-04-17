@@ -30,15 +30,15 @@ Le fichier généré est parcouru, et la famille de chaque article est récupér
 
 ### 3. **Création du fichier d'inventaire pour chaque famille** :
 
-Chaque famille fera l'objet d'un fichier texte à son nom, et un fichier d'inventaire pour chaque famille sera créé dans le répertoire de destination. Le fichier d'inventaire contiendra les articles de la famille, ainsi que leur quantité scannée.
+Chaque famille fera l'objet d'un fichier texte à son nom, et un fichier d'inventaire pour chaque famille sera créé dans le répertoire de destination. Le fichier d'inventaire contiendra les articles de la famille, ainsi que leur quantité scannée. Ces fichiers ne sont pas utiles pour la suite du traitement, mais peuvent l'être afin de réaliser différents traitement manuels annexes.
 
-### 4. **Création des inventaires en base de données** :
+### 4. **Mise à jour du stock en base de données** :
 
-Pour chaque famille, un inventaire sera créé dans la base de données de Batigest Connect. Le fichier d'inventaire de famille sera lu, et chaque article sera ajouté à l'inventaire créé précédemment.
+Le stock est géré par deux tables différentes, l'une recense l'ensemble des mouvements de stock (Entrées et Sorties), tandis que la seconde recense chaque article avec sa quantité approvisionnée et consommée.
 
-### 5. **Édition d'un rapport de fin d'exécution** :
+Afin de corriger les différences, le programme calcule la valeur aboslue de la différence entre la quantité en stock (récupérer en soustrayant la quantité approvisonnée à la quantité consommée) et la quantité scanné par les secrétaires. Il créé par la suite le mouvement de stock adapté avec la différence calculée.
 
-Durant toute l'exécution, les différentes erreurs sont relevées et enregistrées dans un fichier de log. De plus, à la fin de l'exécution, un rapport sous format HTML / CSS est généré pour que l'utilisateur puisse relever plus facilement les erreurs, ou bien les différentes informations sur l'inventaire réalisé.
+Une fois ce mouvement de stock inséré, la table recensant les articles avec leur apprivisonnement et leur consommation est à son tour modifiée. Selon le mouvement de stock effectué auparavant, le programme modifie automatiquement la quantité concernée (approvsionnée ou consommée).
 
 ## Déploiement
 
