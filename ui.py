@@ -355,3 +355,5 @@ class Interface:
                 log_and_display(f"La mise à jour de l'article {code} a échoué")
             else:
                 write_log(f"Mise à jour de l'article {code} réussie")
+        else:
+            log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root)
