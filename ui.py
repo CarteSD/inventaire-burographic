@@ -257,8 +257,8 @@ class Interface:
                         if get_famille(self.connection, key) == famille:
                             file.write(f"{key};{articlesDictionnary[key]}\n")
 
-            # Exécution de la fonction create_inventories
-            log_and_display("Lancement de la création des inventaires par famille...", self.text_box, self.root, 3)
+            # Exécution de la fonction update_stock
+            log_and_display("Lancement de la mise à jour des stocks", self.text_box, self.root, 3)
             self.update_stock(articlesDictionnary)
 
             log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
@@ -318,26 +318,3 @@ class Interface:
                 log_and_display(f"La mise à jour de l'article {code} a échoué")
             else:
                 write_log(f"Mise à jour de l'article {code} réussie")
-            
-
-    # But : Créer un inventaire pour cahcun des fichiers contenus
-    #       dans le dossier passé en paramètre
-    def create_inventories(self, directory):
-        if not os.path.exists(directory):
-            log_and_display(f"Le dossier d'inventaire par famille {directory} n'existe pas.", self.text_box, self.root, 1)
-            return
-
-        # Récupération de la liste des fichiers d'inventaire
-        files = []
-        for f in os.listdir(directory):
-            file_path = os.path.join(directory, f)
-            if os.path.isfile(file_path) and f.endswith(".txt"):
-                files.append(f)
-
-        if not self.connection:
-            self.connection = database_connection()
-
-        for file in files:
-            file_path = os.path.join(directory, file)
-            log_and_display(f"Traitement de la famille {file.replace('.txt', '')}...", self.text_box, self.root, 1)
-            create_inventory_famille(self.connection, file_path, file.replace(".txt", ""))
