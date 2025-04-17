@@ -82,6 +82,59 @@ def get_famille(connection, item):
         write_log(f"[ERREUR] {str(e)}")
         return None
 
+def get_all_articles(connection):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT * FROM ElementStock"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        if result:
+            return result
+        else:
+            return None
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return None
+
+def get_article_stock(connection, id):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT * FROM ElementStock WHERE CodeElem = ?"
+        cursor.execute(query, id)
+        result = cursor.fetchone()
+        if result:
+            return result
+        else:
+            return None
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return None
+
+def create_mvt(connection, typeMvt, article, quantite):
+    try:
+        cursor = connection.cursor()
+        query = "INSERT INTO ElementMvtStock (CodeElem, TypeMvt, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        info = f"Inventaire manuel du {datetime.today()}"
+        cursor.execute(query, [article[0], typeMvt, 'M', datetime.today(), quantite, article[5], info])
+        connection.commit()
+
+        if typeMvt == 'E':
+            query = "UPDATE ElementStock SET QttAppro = QttAppro + ? WHERE CodeElem = ?"
+            cursor.execute(query, [quantite, article[0]])
+
+        elif typeMvt == 'S':
+            query = "UPDATE ElementStock SET QttConso = QttConso + ? WHERE CodeElem = ?"
+            cursor.execute(query, [quantite, article[0]])
+        connection.commit()
+
+        return True
+    
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return False
+
 # But : Créer un inventaire pour la famille passée en paramètre,
 #       en y insérant tous les articles contenus dans le fichier
 def create_inventory_famille(connection, file, famille):

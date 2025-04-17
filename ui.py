@@ -201,7 +201,7 @@ class Interface:
                                                f"L'article {key} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données."
+                        self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Ignoré, opération reprise"
                         continue
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
@@ -259,7 +259,7 @@ class Interface:
 
             # Exécution de la fonction create_inventories
             log_and_display("Lancement de la création des inventaires par famille...", self.text_box, self.root, 3)
-            self.create_inventories(famillesDirectory)
+            self.update_stock(articlesDictionnary)
 
             log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
 
@@ -279,6 +279,46 @@ class Interface:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
             write_log(f"[ERREUR] {str(e)}")
             return
+
+    def update_stock(self, correctStock):
+        # Récupérer tous les articles de la base de données
+        allArticles = get_all_articles(self.connection)
+        print(allArticles)
+
+        if allArticles is not None:
+            for article in allArticles:
+                codeArticle = article[0]
+                if codeArticle in correctStock:
+                    # Mettre à jour l'article dans la base de données
+                    self.compare_and_update_article_stock(codeArticle, correctStock[codeArticle])
+                else:
+                    # Mettre la valeur du stock à 0
+                    self.compare_and_update_article_stock(codeArticle, 0)
+
+
+    def compare_and_update_article_stock(self, code, realQuantity):
+        # Récupérer la quantité en stock théorique
+        bdArticle = get_article_stock(self.connection, code)
+        qteAppro = bdArticle[2]
+        qteConso = bdArticle[3]
+        qteStock = qteAppro - qteConso
+
+        # Créer un mouvement de stock pour corriger la différence
+        log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {realQuantity}", self.text_box, self.root)
+        diff = abs(qteStock - realQuantity)
+        if qteStock > realQuantity:
+            typeMvt = 'S'
+        elif qteStock < realQuantity:
+            typeMvt = 'E'
+        else:
+            typeMvt = None
+
+        if typeMvt is not None:
+            if not create_mvt(self.connection, typeMvt, bdArticle, diff) :
+                log_and_display(f"La mise à jour de l'article {code} a échoué")
+            else:
+                write_log(f"Mise à jour de l'article {code} réussie")
+            
 
     # But : Créer un inventaire pour cahcun des fichiers contenus
     #       dans le dossier passé en paramètre
