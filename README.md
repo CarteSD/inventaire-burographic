@@ -2,7 +2,7 @@
 Ce module permet le traitement automatique d'un fichier texte extrait d'une douchette, en vue de l'importer dans Batigest Connect. Il est conçu pour fonctionner avec un fichier texte contenant l'ensemble des références scannées, séparées par un retour à la ligne.
 
 ## Fonctionnement 
-Le traitement du fichier se fait en XX étapes majeures :
+Le traitement du fichier se fait **en 4 étapes** majeures :
 ### 1. **Lecture du fichier texte** :  
 
 Le fichier texte est ouvert et lu ligne par ligne et converti sous forme de fichier recensant `code:quantité`.  
@@ -30,7 +30,8 @@ Le fichier généré est parcouru, et la famille de chaque article est récupér
 
 ### 3. **Création du fichier d'inventaire pour chaque famille** :
 
-Chaque famille fera l'objet d'un fichier texte à son nom, et un fichier d'inventaire pour chaque famille sera créé dans le répertoire de destination. Le fichier d'inventaire contiendra les articles de la famille, ainsi que leur quantité scannée. Ces fichiers ne sont pas utiles pour la suite du traitement, mais peuvent l'être afin de réaliser différents traitement manuels annexes.
+Chaque famille fera l'objet d'un fichier texte à son nom, et un fichier d'inventaire pour chaque famille sera créé dans le répertoire de destination. Le fichier d'inventaire contiendra les articles de la famille, ainsi que leur quantité scannée.  
+*N.b. : Ces fichiers ne sont pas utiles pour la suite du traitement, mais peuvent l'être afin de réaliser différents traitements manuels annexes.*
 
 ### 4. **Mise à jour du stock en base de données** :
 
