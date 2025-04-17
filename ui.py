@@ -198,7 +198,7 @@ class Interface:
                             else:
                                 articleSuivant = rawDatas[indexActuel + 1]
                                 articlePrecedent = rawDatas[indexActuel - 1]
-                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant} à la ligne {indexActuel + 1}. Ignoré, opération reprise"
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
@@ -321,7 +321,6 @@ class Interface:
 
     # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correctStock):
-        print(correctStock)
         # Récupérer tous les articles de la base de données
         allArticles = get_all_articles(self.connection)
 
@@ -344,7 +343,6 @@ class Interface:
         qteStock = qteAppro - qteConso
 
         # Créer un mouvement de stock pour corriger la différence
-        log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {realQuantity}", self.text_box, self.root)
         diff = abs(qteStock - realQuantity)
         if qteStock > realQuantity:
             typeMvt = 'S'
@@ -355,9 +353,10 @@ class Interface:
 
         # Gestion d'une potentielle erreur lors de la mise à jour
         if typeMvt is not None:
+            log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {realQuantity}", self.text_box, self.root, 0.5)
             if not create_mvt(self.connection, typeMvt, bdArticle, diff) :
-                log_and_display(f"La mise à jour de l'article {code} a échoué")
+                log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.5)
             else:
                 write_log(f"Mise à jour de l'article {code} réussie")
         else:
-            log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root)
+            log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root, 0.5)
