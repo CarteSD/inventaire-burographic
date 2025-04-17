@@ -82,17 +82,63 @@ def get_famille(connection, item):
         write_log(f"[ERREUR] {str(e)}")
         return None
 
-# But : Créer un inventaire pour la famille passée en paramètre,
-#       en y insérant tous les articles contenus dans le fichier
-def create_inventory_famille(connection, file, famille):
-    # CRÉATION DANS LA BASE DE DONNÉES
-    with open(file, 'r') as f:
-        lines = f.readlines()
-        for line in lines:
-            insert_line_in_inventory(connection, line, famille)
+# But : Récupérer tous les articles de stock en base de données
+def get_all_articles(connection):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT * FROM ElementStock"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        if result:
+            return result
+        else:
+            return None
 
-# But : Insérer une ligne dans l'inventaire d'une famille passée en paramètre
-def insert_line_in_inventory(connection, line, famille):
-    args = line.replace("\n", "").split(";")
-    write_log(f"Insertion de l'article {args[0]} (quantité {args[1]}) dans la famille {famille}")
-    # INSERTION DANS LA BASE DE DONNÉES
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return None
+
+# But : Récupérer le stock d'un article
+def get_article_stock(connection, id):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT * FROM ElementStock WHERE CodeElem = ?"
+        cursor.execute(query, id)
+        result = cursor.fetchone()
+        if result:
+            return result
+        else:
+            return None
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return None
+
+# But : Créer un mouvement de stock sur un article défini
+#
+#       Afin d'assurer la cohérence des données, met à jour la table ElementStock
+#       pour garantir que les quantités restent cohérentes entre elles
+def create_mvt(connection, typeMvt, article, quantite):
+    try:
+        cursor = connection.cursor()
+        # Insertion du mouvement de stock
+        query = "INSERT INTO ElementMvtStock (CodeElem, TypeMvt, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        info = f"Inventaire manuel du {datetime.today()}"
+        cursor.execute(query, [article[0], typeMvt, 'M', datetime.today(), quantite, article[5], info])
+        connection.commit()
+
+        # Mise à jour du stock de l'élément
+        if typeMvt == 'E':
+            query = "UPDATE ElementStock SET QttAppro = QttAppro + ? WHERE CodeElem = ?"
+            cursor.execute(query, [quantite, article[0]])
+
+        elif typeMvt == 'S':
+            query = "UPDATE ElementStock SET QttConso = QttConso + ? WHERE CodeElem = ?"
+            cursor.execute(query, [quantite, article[0]])
+        connection.commit()
+
+        return True
+    
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return False
