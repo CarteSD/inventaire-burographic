@@ -11,6 +11,10 @@ Le traitement du fichier se fait **en 5 étapes** majeures :
 
 Le fichier texte est ouvert et lu ligne par ligne et converti sous forme de fichier recensant `code:quantité`.  
 
+> [!WARNING]
+> Le fichier texte à fournir doit obligatoirement être une série de code barre séparé par des sauts de ligne.
+> Dans le cas contraire, des erreurs peuvent survenir.
+
 *Fichier importé :*
 ```
 ABCDEFGHI
