@@ -48,6 +48,7 @@ def generate_report(report_data):
     total_articles = stats.get("total_articles", 0)
     different_articles = stats.get("different_articles", 0)
     familles_count = stats.get("familles_count", 0)
+    errors_count = stats.get("errors_count", 0)
 
     # Extraction des erreurs et familles avec vérification du type
     errors = report_data.get("errors", {})
@@ -82,6 +83,7 @@ def generate_report(report_data):
     html_content = html_content.replace("{{total_articles}}", str(total_articles))
     html_content = html_content.replace("{{different_articles}}", str(different_articles))
     html_content = html_content.replace("{{familles_count}}", str(familles_count))
+    html_content = html_content.replace("{{errors_count}}", str(errors_count))
     html_content = html_content.replace("{{errors_html}}", errors_html)
 
     # Enregistrer le fichier

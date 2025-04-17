@@ -94,7 +94,8 @@ class Interface:
             "stats": {
                 "total_articles": 0,
                 "different_articles": 0,
-                "familles_count": 0
+                "familles_count": 0,
+                "errors_count": 0
             }
         }
 
@@ -276,6 +277,7 @@ class Interface:
 
             # Génération du rapport d'exécution
             log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
+            self.reportDatas["stats"]["errors_count"] = len(self.reportDatas["errors"])
             report = generate_report(self.reportDatas)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)

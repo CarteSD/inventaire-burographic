@@ -155,7 +155,7 @@
         <div class="summary-card">
             <h2>Rapport d'exécution d'inventaire</h2>
             <p>Ce rapport présente l'analyse d'exécution basée sur les données collectées dans le fichier fourni. Il inclut les statistiques globales ainsi que les différentes erreurs rencontrées lors de la réalisation de l'inventaire.</p>
-            <p>Vous pouvez dors et déjà consulter l'inventaire sur le logicie Sage Batigest, dans le menu Stock > Inventaire.</p>
+            <p>Vous pouvez dors et déjà consulter l'inventaire sur le logiciel Sage Batigest Connect, dans le menu Stock > Inventaire.</p>
         </div>
 
         <div class="section">
@@ -173,11 +173,15 @@
                     <div class="stat-label">Familles d'articles</div>
                     <div class="stat-value">{{familles_count}}</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-label">Nombre d'erreurs</div>
+                    <div class="stat-value">{{errors_count}}</div>
+                </div>
             </div>
         </div>
 
         <div class="section">
-            <h2>Liste des erreurs</h2>
+            <h2>Liste des erreurs ({{errors_count}})</h2>
             <div id="errors-container">
                 {{errors_html}}
             </div>
