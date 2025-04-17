@@ -134,24 +134,6 @@ class Interface:
 
         # Lecture du fichier d'inventaire
         try:
-            with open(filePath, 'r') as file:
-                rawDatas = file.readlines()
-
-            # Affichage du message de récupération des articles
-            log_and_display("Récupération des articles...", self.text_box, self.root, 1)
-
-            # Ajout du nombre d'article total au rapport d'exécution
-            self.reportDatas["stats"]["total_articles"] = len(rawDatas)
-
-            # Création d'un dictionnaire pour transformer le fichier en code => quantité
-            articlesDictionnary = {}
-            for code in rawDatas:
-                code = code.replace("\n", "")
-                if code in articlesDictionnary:
-                    articlesDictionnary[code] += 1
-                else:
-                    articlesDictionnary[code] = 1
-
             inventairesDirectory = ".\\inventaires"
             if not os.path.exists(inventairesDirectory):
                 log_and_display(f"Création du dossier {inventairesDirectory}...", self.text_box, self.root, 0.5)
@@ -181,6 +163,54 @@ class Interface:
                     # Nettoyage du dossier temporaire
                     shutil.rmtree(tempInventoryDirectory)
                     return
+    
+            with open(filePath, 'r') as file:
+                rawDatas = file.readlines()
+
+            # Affichage du message de récupération des articles
+            log_and_display("Récupération des articles...", self.text_box, self.root, 1)
+
+            # Ajout du nombre d'article total au rapport d'exécution
+            self.reportDatas["stats"]["total_articles"] = len(rawDatas)
+
+            # Création d'un dictionnaire pour transformer le fichier en code => quantité
+            articlesDictionnary = {}
+            undefinedArticles = []
+            for code in rawDatas:
+                code = code.replace("\n", "")
+                if not article_exists(self.connection, code) and code not in undefinedArticles:
+                    # Vérification de l'existence de l'article dans la base de données
+                    log_and_display(f"L'article {code} n'existe pas dans la base de données", self.text_box, self.root)
+                    errorName = f"Article {code} inexistant"
+                    skip = messagebox.askyesno("Article inexistant", f"L'article {code} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                    if skip:
+                        undefinedArticles.append(code)
+                        log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
+                        indexation = list(articlesDictionnary.keys())
+                        indexActuel = indexation.index(code)
+                        if indexActuel == 0:
+                            articleSuivant = indexation[indexActuel + 1]
+                            self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
+                        elif indexActuel == len(indexation) - 1:
+                            articlePrecedent = indexation[indexActuel - 1]
+                            self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
+                        else:
+                            articleSuivant = indexation[indexActuel + 1]
+                            articlePrecedent = indexation[indexActuel - 1]
+                            self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
+                        continue
+                    else:
+                        log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+                        self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {key}"
+
+                        # Nettoyage du dossier temporaire
+                        shutil.rmtree(tempInventoryDirectory)
+                        return
+                else:
+                    if code in articlesDictionnary:
+                        articlesDictionnary[code] += 1
+                    else:
+                        articlesDictionnary[code] = 1
 
             # Création du fichier code;quantite dans le dossier temporaire
             outputFile = os.path.join(tempInventoryDirectory, f"inventaire_{currentDate}.txt")
@@ -192,34 +222,6 @@ class Interface:
             # Création du tableau des familles scannées
             familles = []
             for key in articlesDictionnary.keys():
-                # Vérification de l'existence de l'article
-                if not article_exists(self.connection, key):
-                    log_and_display(f"L'article {key} n'existe pas dans la base de données", self.text_box, self.root)
-                    errorName = f"Article {key} inexistant"
-                    skip = messagebox.askyesno("Article inexistant", f"L'article {key} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
-                    if skip:
-                        log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
-                        indexation = list(articlesDictionnary.keys())
-                        indexActuel = indexation.index(key)
-                        if indexActuel == 0:
-                            articleSuivant = indexation[indexActuel + 1]
-                            self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
-                        elif indexActuel == len(indexation) - 1:
-                            articlePrecedent = indexation[indexActuel - 1]
-                            self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
-                        else:
-                            articleSuivant = indexation[indexActuel + 1]
-                            articlePrecedent = indexation[indexActuel - 1]
-                            self.reportDatas["errors"][errorName] = f"Article {key} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant}. Ignoré, opération reprise"
-                        continue
-                    else:
-                        log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {key}"
-
-                        # Nettoyage du dossier temporaire
-                        shutil.rmtree(tempInventoryDirectory)
-                        return
-
                 # Récupération de la famille de l'article
                 famille = get_famille(self.connection, key)
                 if famille is None:
