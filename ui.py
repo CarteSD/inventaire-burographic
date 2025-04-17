@@ -280,6 +280,7 @@ class Interface:
             write_log(f"[ERREUR] {str(e)}")
             return
 
+    # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correctStock):
         # Récupérer tous les articles de la base de données
         allArticles = get_all_articles(self.connection)
@@ -295,7 +296,7 @@ class Interface:
                     # Mettre la valeur du stock à 0
                     self.compare_and_update_article_stock(codeArticle, 0)
 
-
+    # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
     def compare_and_update_article_stock(self, code, realQuantity):
         # Récupérer la quantité en stock théorique
         bdArticle = get_article_stock(self.connection, code)
@@ -313,6 +314,7 @@ class Interface:
         else:
             typeMvt = None
 
+        # Gestion d'une potentielle erreur lors de la mise à jour
         if typeMvt is not None:
             if not create_mvt(self.connection, typeMvt, bdArticle, diff) :
                 log_and_display(f"La mise à jour de l'article {code} a échoué")
