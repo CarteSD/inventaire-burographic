@@ -284,7 +284,6 @@ class Interface:
     def update_stock(self, correctStock):
         # Récupérer tous les articles de la base de données
         allArticles = get_all_articles(self.connection)
-        print(allArticles)
 
         if allArticles is not None:
             for article in allArticles:
