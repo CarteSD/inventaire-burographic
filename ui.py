@@ -189,17 +189,17 @@ class Interface:
                         if skip:
                             undefined_articles.append(code)
                             log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
-                            indexActuel = raw_datas.index(code + '\n')
-                            if indexActuel == 0:
-                                next_code = raw_datas[indexActuel + 1].replace("\n", "").strip()
+                            index_actuel = raw_datas.index(code + '\n')
+                            if index_actuel == 0:
+                                next_code = raw_datas[index_actuel + 1].replace("\n", "").strip()
                                 error_msg = self.format_article_error_message(code, "first", next_code=next_code)
-                            elif indexActuel == len(raw_datas) - 1:
-                                prev_code = raw_datas[indexActuel - 1].replace("\n", "").strip()
+                            elif index_actuel == len(raw_datas) - 1:
+                                prev_code = raw_datas[index_actuel - 1].replace("\n", "").strip()
                                 error_msg = self.format_article_error_message(code, "last", prev_code=prev_code)
                             else:
-                                prev_code = raw_datas[indexActuel - 1].replace("\n", "").strip()
-                                next_code = raw_datas[indexActuel + 1].replace("\n", "").strip()
-                                error_msg = self.format_article_error_message(code, indexActuel, prev_code, next_code)
+                                prev_code = raw_datas[index_actuel - 1].replace("\n", "").strip()
+                                next_code = raw_datas[index_actuel + 1].replace("\n", "").strip()
+                                error_msg = self.format_article_error_message(code, index_actuel, prev_code, next_code)
                             
                             self.report_datas["errors"][error_name] = error_msg
                             continue
