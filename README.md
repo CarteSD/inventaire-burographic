@@ -38,7 +38,7 @@ Le fichier généré est parcouru, et la famille de chaque article est récupér
 
 ### 3. **Création du fichier d'inventaire pour chaque famille** :
 
-Chaque famille fera l'objet d'un fichier texte à son nom, et un fichier d'inventaire pour chaque famille sera créé dans le répertoire de destination. Le fichier d'inventaire contiendra les articles de la famille, ainsi que leur quantité scannée.  
+Chaque famille fera l'objet d'un fichier texte à son nom, qui sera son inventaire. Le fichier d'inventaire contiendra uniquement les articles de la famille, ainsi que leur quantité scannée.  
 *N.b. : Ces fichiers ne sont pas utiles pour la suite du traitement, mais peuvent l'être afin de réaliser différents traitements manuels annexes.*
 
 ### 4. **Mise à jour du stock en base de données** :
