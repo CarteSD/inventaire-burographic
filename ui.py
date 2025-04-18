@@ -177,7 +177,7 @@ class Interface:
             articlesDictionnary = {}
             undefinedArticles = []
             for code in rawDatas:
-                code = code.replace("\n", "")
+                code = code.replace("\n", "").strip()
                 if code == "":
                     continue
                 # Vérification de l'existence de l'article dans la base de données

@@ -12,7 +12,7 @@ Le traitement du fichier se fait **en 5 étapes** majeures :
 Le fichier texte est ouvert et lu ligne par ligne et converti sous forme de fichier recensant `code:quantité`.  
 
 > [!WARNING]
-> Le fichier texte à fournir doit obligatoirement être une série de code barre séparé par des sauts de ligne.
+> Le fichier texte à fournir doit obligatoirement être une série de code barre séparés par des sauts de ligne.
 > Dans le cas contraire, des erreurs peuvent survenir.
 
 *Fichier importé :*
@@ -59,6 +59,7 @@ Le programme répond à quelques questions de sûreté et de cohérence des donn
 - Vérification de l'existence de chaque article avant de le traiter
 - Vérification de l'existence de chaque famille d'article
 - Création de l'inventaire dans un dossier temporaire, supprimé en cas d'interruption du programme
+- Ignorance des lignes vides et des espaces inutiles
 
 Il permet également à l'utilisateur de comprendre et de suivre le déroulé du traitement :
 - Affichage de la succession des tâches réalisées
