@@ -28,9 +28,6 @@ def log_and_display(message, text_box, root, delay=0):
 
 
 def generate_report(report_data):
-    import os
-    from datetime import datetime
-
     # Vérification que report_data est bien un dictionnaire
     if not isinstance(report_data, dict):
         raise TypeError("Les données du rapport doivent être un dictionnaire")
