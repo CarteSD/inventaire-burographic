@@ -191,15 +191,35 @@ class Interface:
                             log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
                             indexActuel = rawDatas.index(code + '\n')
                             if indexActuel == 0:
-                                articleSuivant = rawDatas[indexActuel + 1]
-                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en première position, avant {articleSuivant}. Ignoré, opération reprise"
+                                codeArticleSuivant = rawDatas[indexActuel + 1].replace("\n", "").strip()
+                                articleSuivant = get_article_def(self.connection, codeArticleSuivant)
+                                if articleSuivant is None:
+                                    articleSuivant = "inconnu"
+                                else:
+                                    articleSuivant = articleSuivant[1]
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en première position, avant {codeArticleSuivant} ({articleSuivant}). Ignoré, opération reprise"
                             elif indexActuel == len(rawDatas) - 1:
-                                articlePrecedent = rawDatas[indexActuel - 1]
-                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en dernière position, après {articlePrecedent}. Ignoré, opération reprise"
+                                codeArticlePrecedent = rawDatas[indexActuel - 1].replace("\n", "").strip()
+                                articlePrecedent = get_article_def(self.connection, codeArticlePrecedent)
+                                if articlePrecedent is None:
+                                    articlePrecedent = "inconnu"
+                                else:
+                                    articlePrecedent = articlePrecedent[1]
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé en dernière position, après {codeArticlePrecedent} ({articlePrecedent}). Ignoré, opération reprise"
                             else:
-                                articleSuivant = rawDatas[indexActuel + 1]
-                                articlePrecedent = rawDatas[indexActuel - 1]
-                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {articlePrecedent} et {articleSuivant} à la ligne {indexActuel + 1}. Ignoré, opération reprise"
+                                codeArticleSuivant = rawDatas[indexActuel + 1].replace("\n", "").strip()
+                                articleSuivant = get_article_def(self.connection, codeArticleSuivant)
+                                if articleSuivant is None:
+                                    articleSuivant = "inconnu"
+                                else:
+                                    articleSuivant = articleSuivant[1]
+                                codeArticlePrecedent = rawDatas[indexActuel - 1].replace("\n", "").strip()
+                                articlePrecedent = get_article_def(self.connection, codeArticlePrecedent)
+                                if articlePrecedent is None:
+                                    articlePrecedent = "inconnu"
+                                else:
+                                    articlePrecedent = articlePrecedent[1]
+                                self.reportDatas["errors"][errorName] = f"Article {code} absent en base de données. Situé entre {codeArticlePrecedent} ({articlePrecedent}) et {codeArticleSuivant} ({articleSuivant}) à la ligne {indexActuel + 1}. Ignoré, opération reprise"
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)

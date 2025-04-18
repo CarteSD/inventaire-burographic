@@ -113,6 +113,22 @@ def get_article_stock(connection, id):
     except pyodbc.Error as e:
         write_log(f"[ERREUR] {str(e)}")
         return None
+    
+# But : Récupérer la définition d'un article
+def get_article_def(connection, id):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT * FROM ElementDef WHERE Code = ?"
+        cursor.execute(query, id)
+        result = cursor.fetchone()
+        if result:
+            return result
+        else:
+            return None
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return None
 
 # But : Créer un mouvement de stock sur un article défini
 #
