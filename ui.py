@@ -189,7 +189,6 @@ class Interface:
                         if skip:
                             undefinedArticles.append(code)
                             log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
-                            indexation = list(articlesDictionnary.keys())
                             indexActuel = rawDatas.index(code + '\n')
                             if indexActuel == 0:
                                 articleSuivant = rawDatas[indexActuel + 1]
@@ -215,8 +214,12 @@ class Interface:
                     else:
                         articlesDictionnary[code] = 1
 
+            # Copie du fichier brut pour en garder une trace
+            brutFile = os.path.join(tempInventoryDirectory, f"inventaire_brut_{currentDate}.txt")
+            shutil.copyfile(filePath, brutFile)
+
             # Création du fichier code;quantite dans le dossier temporaire
-            outputFile = os.path.join(tempInventoryDirectory, f"inventaire_{currentDate}.txt")
+            outputFile = os.path.join(tempInventoryDirectory, f"inventaire_trie_{currentDate}.txt")
             with open(outputFile, 'w', encoding='utf-8') as file:
                 for key, value in articlesDictionnary.items():
                     file.write(f"{key};{value}\n")
