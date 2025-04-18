@@ -29,42 +29,42 @@ class Interface:
         self.connection = database_connection()
 
         # Variables pour le chemin du fichier d'inventaire
-        self.InventoryFilePath = tk.StringVar()
+        self.inventory_file_path = tk.StringVar()
 
         # Création de la fenêtre principale
-        self.mainFrame = tk.Frame(self.root, padx=10, pady=10)
-        self.mainFrame.pack(fill=tk.BOTH, expand=True, anchor="w")
+        self.main_frame = tk.Frame(self.root, padx=10, pady=10)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, anchor="w")
 
         # Création du message d'arrivée sur l'application
-        self.welcomeMessage = tk.Label(
-            self.mainFrame, text="Bienvenue dans le module d'inventaire de BUROGRAPHIC",
+        self.welcome_message = tk.Label(
+            self.main_frame, text="Bienvenue dans le module d'inventaire de BUROGRAPHIC",
            font=("Arial", 16, "bold")
         )
         self.description = tk.Label(
-            self.mainFrame,
+            self.main_frame,
             text="Ce module vous permet de créer un inventaire pour votre entreprise",
             font=("Arial", 12)
         )
-        self.welcomeMessage.pack(pady=20)
+        self.welcome_message.pack(pady=20)
         self.description.pack()
 
         # Cadre pour la sélection de fichier
-        self.fileSelectionFrame = tk.Frame(self.mainFrame)
-        self.fileSelectionFrame.pack(fill=tk.X, pady=15)
+        self.file_selection_frame = tk.Frame(self.main_frame)
+        self.file_selection_frame.pack(fill=tk.X, pady=15)
 
-        self.fileLabel = tk.Label(self.fileSelectionFrame, text="Fichier sélectionné:", font=("Arial", 10))
-        self.fileLabel.pack(anchor=tk.W)
+        self.file_label = tk.Label(self.file_selection_frame, text="Fichier sélectionné:", font=("Arial", 10))
+        self.file_label.pack(anchor=tk.W)
 
         # Création du bouton pour choisir le fichier d'inventaire
-        self.filePathEntry = tk.Entry(self.fileSelectionFrame, textvariable=self.InventoryFilePath, width=50)
-        self.filePathEntry.pack(side=tk.LEFT, fill=tk.X, expand=True, pady=5)
+        self.file_path_entry = tk.Entry(self.file_selection_frame, textvariable=self.inventory_file_path, width=50)
+        self.file_path_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, pady=5)
 
-        self.browseButton = tk.Button(self.fileSelectionFrame, text="Parcourir...", command=self.select_file)
-        self.browseButton.pack(side=tk.RIGHT, padx=5, pady=5)
+        self.browse_button = tk.Button(self.file_selection_frame, text="Parcourir...", command=self.select_file)
+        self.browse_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
         # Bouton pour lancer l'inventaire
-        self.launchInventoryButton = tk.Button(
-            self.mainFrame,
+        self.launch_inventory_button = tk.Button(
+            self.main_frame,
             text="Lancer l'inventaire",
             command=self.launch_inventory,
             bg="#4CAF50",
@@ -73,10 +73,10 @@ class Interface:
             padx=10,
             pady=5
         )
-        self.launchInventoryButton.pack(pady=20)
+        self.launch_inventory_button.pack(pady=20)
 
         # Cadre pour les résultats
-        self.results_frame = tk.Frame(self.mainFrame)
+        self.results_frame = tk.Frame(self.main_frame)
         self.results_frame.pack(fill=tk.BOTH, expand=True)
 
         self.text_scrollbar = tk.Scrollbar(self.results_frame)
@@ -89,7 +89,7 @@ class Interface:
         self.text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Initialisation du tableau de données pour le rapport d'exécution
-        self.reportDatas = {
+        self.report_datas = {
             "errors": {},
             "stats": {
                 "total_articles": 0,
@@ -107,7 +107,7 @@ class Interface:
             filetypes=(("Fichiers texte", "*.txt"), ("Tous les fichiers", "*.*"))
         )
         if filename:
-            self.InventoryFilePath.set(filename)
+            self.inventory_file_path.set(filename)
 
     # But : Lancer la création de l'inventaire
     def launch_inventory(self):
@@ -118,14 +118,14 @@ class Interface:
         log_and_display("Récupération du fichier d'inventaire...", self.text_box, self.root)
 
         # Récupération du fichier sélectionné
-        filePath = self.InventoryFilePath.get()
-        if not filePath:
+        file_path = self.inventory_file_path.get()
+        if not file_path:
             messagebox.showerror("Erreur", "Veuillez sélectionner un fichier d'inventaire.")
             return
-        if not os.path.exists(filePath):
+        if not os.path.exists(file_path):
             messagebox.showerror("Erreur", "Le fichier sélectionné n'existe pas.")
             return
-        if not filePath.endswith(".txt"):
+        if not file_path.endswith(".txt"):
             messagebox.showerror("Erreur", "Le fichier sélectionné n'est pas un fichier texte.")
             return
 
@@ -134,183 +134,183 @@ class Interface:
 
         # Lecture du fichier d'inventaire
         try:
-            inventairesDirectory = ".\\inventaires"
-            if not os.path.exists(inventairesDirectory):
-                log_and_display(f"Création du dossier {inventairesDirectory}...", self.text_box, self.root, 0.5)
-                os.makedirs(inventairesDirectory)
+            inventories_dicrectory = ".\\inventaires"
+            if not os.path.exists(inventories_dicrectory):
+                log_and_display(f"Création du dossier {inventories_dicrectory}...", self.text_box, self.root, 0.5)
+                os.makedirs(inventories_dicrectory)
 
             # Affichage du message de création du fichier d'inventaire
             log_and_display("Création du dossier d'inventaire à la date du jour", self.text_box, self.root, 0.5)
 
-            currentDate = datetime.now().strftime("%Y-%m-%d")
-            log_and_display(f"Date d'inventaire : {currentDate}", self.text_box, self.root)
-            thisInventoryDirectory = os.path.join(inventairesDirectory, f"inventaire_{currentDate}")
-            tempInventoryDirectory = os.path.join(inventairesDirectory, f"temp_inventaire_{currentDate}_{int(time.time())}")
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            log_and_display(f"Date d'inventaire : {current_date}", self.text_box, self.root)
+            this_inventory_directory = os.path.join(inventories_dicrectory, f"inventaire_{current_date}")
+            temp_inventory_directory = os.path.join(inventories_dicrectory, f"temp_inventaire_{current_date}_{int(time.time())}")
 
-            inventoryExists = os.path.exists(thisInventoryDirectory)
+            inventory_exists = os.path.exists(this_inventory_directory)
             
             # Création du dossier temporaire pour préparer le nouvel inventaire
-            log_and_display(f"Création du dossier temporaire {tempInventoryDirectory}...", self.text_box, self.root, 0.5)
-            os.makedirs(tempInventoryDirectory)
+            log_and_display(f"Création du dossier temporaire {temp_inventory_directory}...", self.text_box, self.root, 0.5)
+            os.makedirs(temp_inventory_directory)
 
-            if inventoryExists:
-                log_and_display(f"Le dossier {thisInventoryDirectory} existe déjà", self.text_box, self.root, 0.5)
+            if inventory_exists:
+                log_and_display(f"Le dossier {this_inventory_directory} existe déjà", self.text_box, self.root, 0.5)
                 time.sleep(2)
-                overwrite = messagebox.askyesno("Dossier déjà existant", f"Le dossier {thisInventoryDirectory} existe déjà. Voulez-vous l'écraser ?")
+                overwrite = messagebox.askyesno("Dossier déjà existant", f"Le dossier {this_inventory_directory} existe déjà. Voulez-vous l'écraser ?")
                 if not overwrite:
                     log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
 
                     # Nettoyage du dossier temporaire
-                    shutil.rmtree(tempInventoryDirectory)
+                    shutil.rmtree(temp_inventory_directory)
                     return
     
-            with open(filePath, 'r') as file:
-                rawDatas = file.readlines()
+            with open(file_path, 'r') as file:
+                raw_datas = file.readlines()
 
             # Affichage du message de récupération des articles
             log_and_display("Récupération des articles...", self.text_box, self.root, 1)
 
             # Ajout du nombre d'article total au rapport d'exécution
-            self.reportDatas["stats"]["total_articles"] = len(rawDatas)
+            self.report_datas["stats"]["total_articles"] = len(raw_datas)
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
-            articlesDictionnary = {}
-            undefinedArticles = []
-            for code in rawDatas:
+            articles_dictionnary = {}
+            undefined_articles = []
+            for code in raw_datas:
                 code = code.replace("\n", "").strip()
                 if code == "":
                     continue
                 # Vérification de l'existence de l'article dans la base de données
                 if not article_exists(self.connection, code):
-                    if code not in undefinedArticles:
+                    if code not in undefined_articles:
                         log_and_display(f"L'article {code} n'existe pas dans la base de données", self.text_box, self.root)
-                        errorName = f"Article {code} inexistant"
+                        error_name = f"Article {code} inexistant"
                         skip = messagebox.askyesno("Article inexistant", f"L'article {code} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                         if skip:
-                            undefinedArticles.append(code)
+                            undefined_articles.append(code)
                             log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
-                            indexActuel = rawDatas.index(code + '\n')
+                            indexActuel = raw_datas.index(code + '\n')
                             if indexActuel == 0:
-                                next_code = rawDatas[indexActuel + 1].replace("\n", "").strip()
+                                next_code = raw_datas[indexActuel + 1].replace("\n", "").strip()
                                 error_msg = self.format_article_error_message(code, "first", next_code=next_code)
-                            elif indexActuel == len(rawDatas) - 1:
-                                prev_code = rawDatas[indexActuel - 1].replace("\n", "").strip()
+                            elif indexActuel == len(raw_datas) - 1:
+                                prev_code = raw_datas[indexActuel - 1].replace("\n", "").strip()
                                 error_msg = self.format_article_error_message(code, "last", prev_code=prev_code)
                             else:
-                                prev_code = rawDatas[indexActuel - 1].replace("\n", "").strip()
-                                next_code = rawDatas[indexActuel + 1].replace("\n", "").strip()
+                                prev_code = raw_datas[indexActuel - 1].replace("\n", "").strip()
+                                next_code = raw_datas[indexActuel + 1].replace("\n", "").strip()
                                 error_msg = self.format_article_error_message(code, indexActuel, prev_code, next_code)
                             
-                            self.reportDatas["errors"][errorName] = error_msg
+                            self.report_datas["errors"][error_name] = error_msg
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                            self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur d'article inexistant {code}"
+                            self.report_datas["errors"][error_name] = f"Interruption de l'opération suite à l'erreur d'article inexistant {code}"
 
                             # Nettoyage du dossier temporaire
-                            shutil.rmtree(tempInventoryDirectory)
+                            shutil.rmtree(temp_inventory_directory)
                             return
                 else:
-                    if code in articlesDictionnary:
-                        articlesDictionnary[code] += 1
+                    if code in articles_dictionnary:
+                        articles_dictionnary[code] += 1
                     else:
-                        articlesDictionnary[code] = 1
+                        articles_dictionnary[code] = 1
 
             # Copie du fichier brut pour en garder une trace
-            brutFile = os.path.join(tempInventoryDirectory, f"inventaire_brut_{currentDate}.txt")
-            shutil.copyfile(filePath, brutFile)
+            raw_file = os.path.join(temp_inventory_directory, f"inventaire_brut_{current_date}.txt")
+            shutil.copyfile(file_path, raw_file)
 
             # Création du fichier code;quantite dans le dossier temporaire
-            outputFile = os.path.join(tempInventoryDirectory, f"inventaire_trie_{currentDate}.txt")
-            with open(outputFile, 'w', encoding='utf-8') as file:
-                for key, value in articlesDictionnary.items():
+            output_file = os.path.join(temp_inventory_directory, f"inventaire_trie_{current_date}.txt")
+            with open(output_file, 'w', encoding='utf-8') as file:
+                for key, value in articles_dictionnary.items():
                     file.write(f"{key};{value}\n")
-                    self.reportDatas["stats"]["different_articles"] += 1
+                    self.report_datas["stats"]["different_articles"] += 1
 
             # Création du tableau des familles scannées
             familles = []
-            for key in articlesDictionnary.keys():
+            for key in articles_dictionnary.keys():
                 # Récupération de la famille de l'article
                 famille = get_famille(self.connection, key)
-                if famille is None and key not in undefinedArticles:
+                if famille is None and key not in undefined_articles:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
-                    errorName = f"Erreur de récupération de famille pour l'article {key}"
+                    error_name = f"Erreur de récupération de famille pour l'article {key}"
                     skip = messagebox.askyesno("Échec de récupération",
                                             f"La récupération de la famille pour l'article {key} a échoué.\n\n Voulez-vous l'ignorer et continuer ?")
                     if skip:
                         log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données. Ignoré, opération reprise."
+                        self.report_datas["errors"][error_name] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données. Ignoré, opération reprise."
                         continue
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                        self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
+                        self.report_datas["errors"][error_name] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
 
                         # Nettoyage du dossier temporaire
-                        shutil.rmtree(tempInventoryDirectory)
+                        shutil.rmtree(temp_inventory_directory)
                         return
                 if famille not in familles:
                     if not famille_exists(self.connection, famille):
                         log_and_display(f"La famille {famille} n'existe pas dans la base de données", self.text_box, self.root)
-                        errorName = f"Famille {famille} inexistante"
+                        error_name = f"Famille {famille} inexistante"
                         skip = messagebox.askyesno("Famille inexistante",
                                                 f"La famille {famille} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
                         if skip:
                             log_and_display(f"Famille {famille} ignorée.", self.text_box, self.root, 0.5)
-                            self.reportDatas["errors"][errorName] = f"Famille {famille} absente en base de données. Ignoré, opération reprise"
+                            self.report_datas["errors"][error_name] = f"Famille {famille} absente en base de données. Ignoré, opération reprise"
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                            self.reportDatas["errors"][errorName] = f"Interruption de l'opération suite à l'erreur de famille inexistante {famille}"
+                            self.report_datas["errors"][error_name] = f"Interruption de l'opération suite à l'erreur de famille inexistante {famille}"
 
                             # Nettoyage du dossier temporaire
-                            shutil.rmtree(tempInventoryDirectory)
+                            shutil.rmtree(temp_inventory_directory)
                             return
                     familles.append(famille)
 
             # Ajout du nombre de familles au rapport d'exécution
-            self.reportDatas["stats"]["familles_count"] = len(familles)
+            self.report_datas["stats"]["familles_count"] = len(familles)
 
             # Création du dossier pour les familles dans le dossier temporaire
-            famillesDirectory = os.path.join(tempInventoryDirectory, "familles")
-            if not os.path.exists(famillesDirectory):
-                log_and_display(f"Création du dossier {famillesDirectory}...", self.text_box, self.root, 0.5)
-                os.makedirs(famillesDirectory)
+            families_directory = os.path.join(temp_inventory_directory, "familles")
+            if not os.path.exists(families_directory):
+                log_and_display(f"Création du dossier {families_directory}...", self.text_box, self.root, 0.5)
+                os.makedirs(families_directory)
 
             # Création de chaque fichier d'inventaire par famille
             for famille in familles:
                 log_and_display(f"Création du fichier d'inventaire pour la famille {famille}...", self.text_box, self.root, 1)
-                familleFile = os.path.join(famillesDirectory, f"{famille}.txt")
-                with open(familleFile, 'w', encoding='utf-8') as file:
-                    for key in articlesDictionnary.keys():
+                family_file = os.path.join(families_directory, f"{famille}.txt")
+                with open(family_file, 'w', encoding='utf-8') as file:
+                    for key in articles_dictionnary.keys():
                         if get_famille(self.connection, key) == famille:
-                            file.write(f"{key};{articlesDictionnary[key]}\n")
+                            file.write(f"{key};{articles_dictionnary[key]}\n")
 
             # Exécution de la fonction update_stock
             log_and_display("Lancement de la mise à jour des stocks", self.text_box, self.root, 3)
-            self.update_stock(articlesDictionnary)
+            self.update_stock(articles_dictionnary)
 
             # Remplacer l'ancien inventaire si nécessaire
-            if inventoryExists:
+            if inventory_exists:
                 log_and_display("Tout s'est bien passé, remplacement de l'ancien inventaire...", self.text_box, self.root, 1)
                 
                 # Supprimer l'ancien dossier d'inventaire
-                log_and_display(f"Suppression de l'ancien inventaire {thisInventoryDirectory}...", self.text_box, self.root, 0.5)
-                shutil.rmtree(thisInventoryDirectory)
+                log_and_display(f"Suppression de l'ancien inventaire {this_inventory_directory}...", self.text_box, self.root, 0.5)
+                shutil.rmtree(this_inventory_directory)
             
             # Renommer le dossier temporaire en dossier final
             log_and_display(f"Finalisation de l'inventaire...", self.text_box, self.root, 0.5)
-            shutil.move(tempInventoryDirectory, thisInventoryDirectory)
+            shutil.move(temp_inventory_directory, this_inventory_directory)
 
             log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
 
             # Génération du rapport d'exécution
             log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
-            self.reportDatas["stats"]["errors_count"] = len(self.reportDatas["errors"])
-            report = generate_report(self.reportDatas)
+            self.report_datas["stats"]["errors_count"] = len(self.report_datas["errors"])
+            report = generate_report(self.report_datas)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
-            userWantOpen = messagebox.askyesno("Rapport généré", f"Le rapport d'exécution d'inventaire a été généré à l'emplacement {report}.\n\n Souhaitez-vous l'ouvrir ?")
-            if userWantOpen:
+            user_wants_open = messagebox.askyesno("Rapport généré", f"Le rapport d'exécution d'inventaire a été généré à l'emplacement {report}.\n\n Souhaitez-vous l'ouvrir ?")
+            if user_wants_open:
                 log_and_display(f"Ouverture du rapport d'exécution...", self.text_box, self.root)
                 webbrowser.open(f"file:///{os.path.abspath(report)}")
 
@@ -318,50 +318,50 @@ class Interface:
             messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
             write_log(f"[ERREUR] {str(e)}")
             # En cas d'erreur, nettoyer le dossier temporaire s'il existe
-            if os.path.exists(tempInventoryDirectory):
+            if os.path.exists(temp_inventory_directory):
                 try:
-                    shutil.rmtree(tempInventoryDirectory)
+                    shutil.rmtree(temp_inventory_directory)
                     log_and_display(f"Nettoyage du dossier temporaire suite à une erreur", self.text_box, self.root)
                 except:
                     pass
             return
 
     # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
-    def update_stock(self, correctStock):
+    def update_stock(self, correct_stock):
         # Récupérer tous les articles de la base de données
-        allArticles = get_all_articles(self.connection)
+        all_articles = get_all_articles(self.connection)
 
-        if allArticles is not None:
-            for article in allArticles:
-                codeArticle = article[0]
-                if codeArticle in correctStock:
+        if all_articles is not None:
+            for article in all_articles:
+                code_article = article[0]
+                if code_article in correct_stock:
                     # Mettre à jour l'article dans la base de données
-                    self.compare_and_update_article_stock(codeArticle, correctStock[codeArticle])
+                    self.compare_and_update_article_stock(code_article, correct_stock[code_article])
                 else:
                     # Mettre la valeur du stock à 0
-                    self.compare_and_update_article_stock(codeArticle, 0)
+                    self.compare_and_update_article_stock(code_article, 0)
 
     # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
-    def compare_and_update_article_stock(self, code, realQuantity):
+    def compare_and_update_article_stock(self, code, real_quantity):
         # Récupérer la quantité en stock théorique
-        bdArticle = get_article_stock(self.connection, code)
-        qteAppro = bdArticle[2]
-        qteConso = bdArticle[3]
-        qteStock = qteAppro - qteConso
+        bd_article = get_article_stock(self.connection, code)
+        qte_appro = bd_article[2]
+        qte_conso = bd_article[3]
+        qte_stock = qte_appro - qte_conso
 
         # Créer un mouvement de stock pour corriger la différence
-        diff = abs(qteStock - realQuantity)
-        if qteStock > realQuantity:
-            typeMvt = 'S'
-        elif qteStock < realQuantity:
-            typeMvt = 'E'
+        diff = abs(qte_stock - real_quantity)
+        if qte_stock > real_quantity:
+            type_mvt = 'S'
+        elif qte_stock < real_quantity:
+            type_mvt = 'E'
         else:
-            typeMvt = None
+            type_mvt = None
 
         # Gestion d'une potentielle erreur lors de la mise à jour
-        if typeMvt is not None:
-            log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {realQuantity}", self.text_box, self.root, 0.5)
-            if not create_mvt(self.connection, typeMvt, bdArticle, diff) :
+        if type_mvt is not None:
+            log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {real_quantity}", self.text_box, self.root, 0.5)
+            if not create_mvt(self.connection, type_mvt, bd_article, diff) :
                 log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.5)
             else:
                 write_log(f"Mise à jour de l'article {code} réussie")
