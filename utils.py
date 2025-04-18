@@ -8,6 +8,8 @@ import tkinter as tk
 import time
 from datetime import datetime
 from constantes import *
+import os
+import sys
 
 # But : Écrire un message dans le fichier de log
 def write_log(message):
@@ -72,7 +74,7 @@ def generate_report(report_data):
         errors_html = '<p>Aucune erreur n\'a été enregistrée durant l\'exécution.</p>'
 
     # Charger le template
-    template_path = os.path.join("report_template.html")
+    template_path = resource_path("report_template.html")
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
@@ -95,3 +97,12 @@ def generate_report(report_data):
         f.write(html_content)
 
     return report_path
+
+# But : Obtient le chemin absolu du fichier ou dossier spécifié
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
