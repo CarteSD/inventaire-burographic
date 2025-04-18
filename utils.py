@@ -22,6 +22,7 @@ def log_and_display(message, text_box, root, delay=0):
     if delay:
         time.sleep(delay)
     text_box.insert(tk.END, message + "\n")
+    text_box.see(tk.END)
     root.update()
     write_log(message)
 
