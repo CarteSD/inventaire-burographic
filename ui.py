@@ -178,6 +178,8 @@ class Interface:
             undefinedArticles = []
             for code in rawDatas:
                 code = code.replace("\n", "")
+                if code == "":
+                    continue
                 # Vérification de l'existence de l'article dans la base de données
                 if not article_exists(self.connection, code):
                     if code not in undefinedArticles:
