@@ -205,7 +205,6 @@ class Interface:
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                            self.report_datas["errors"][error_name] = f"Interruption de l'opération suite à l'erreur d'article inexistant {code}"
 
                             # Nettoyage du dossier temporaire
                             shutil.rmtree(temp_inventory_directory)
@@ -243,7 +242,6 @@ class Interface:
                         continue
                     else:
                         log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                        self.report_datas["errors"][error_name] = f"Interruption de l'opération suite à l'erreur de récupération de la famille de l'article {key}"
 
                         # Nettoyage du dossier temporaire
                         shutil.rmtree(temp_inventory_directory)
@@ -260,7 +258,6 @@ class Interface:
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-                            self.report_datas["errors"][error_name] = f"Interruption de l'opération suite à l'erreur de famille inexistante {famille}"
 
                             # Nettoyage du dossier temporaire
                             shutil.rmtree(temp_inventory_directory)
