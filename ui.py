@@ -327,16 +327,16 @@ class Interface:
     def update_stock(self, correct_stock):
         # Récupérer tous les articles de la base de données
         all_articles = get_all_articles(self.connection)
-
+        
         if all_articles is not None:
             for article in all_articles:
-                code_article = article[0]
-                if code_article in correct_stock:
+                num_commercial = article[6]
+                if num_commercial in correct_stock:
                     # Mettre à jour l'article dans la base de données
-                    self.compare_and_update_article_stock(code_article, correct_stock[code_article])
+                    self.compare_and_update_article_stock(num_commercial, correct_stock[num_commercial])
                 else:
                     # Mettre la valeur du stock à 0
-                    self.compare_and_update_article_stock(code_article, 0)
+                    self.compare_and_update_article_stock(num_commercial, 0)
 
     # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
     def compare_and_update_article_stock(self, code, real_quantity):
