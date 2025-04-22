@@ -145,7 +145,7 @@ class Interface:
             current_date = datetime.now().strftime("%Y-%m-%d")
             log_and_display(f"Date d'inventaire : {current_date}", self.text_box, self.root)
             this_inventory_directory = os.path.join(inventories_dicrectory, f"inventaire_{current_date}")
-            temp_inventory_directory = os.path.join(inventories_dicrectory, f"temp_inventaire_{current_date}_{int(time.time())}")
+            temp_inventory_directory = os.path.join(inventories_dicrectory, f"temp_inventaire_{current_date}")
 
             inventory_exists = os.path.exists(this_inventory_directory)
             
