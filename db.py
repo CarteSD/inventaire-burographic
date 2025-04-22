@@ -98,12 +98,12 @@ def get_all_articles(connection):
         write_log(f"[ERREUR] {str(e)}")
         return None
 
-# But : Récupérer le stock d'un article
-def get_article_stock(connection, id):
+# But : Récupérer le stock d'un article à partir de son numéro commercial
+def get_article_stock(connection, num_commercial):
     try:
         cursor = connection.cursor()
-        query = "SELECT * FROM ElementStock WHERE CodeElem = ?"
-        cursor.execute(query, id)
+        query = "SELECT ES.*, ED.NumCormmercialGlobal FROM ElementStock ES JOIN ElementDef ED ON ES.CodeElem = ED.Code WHERE ED.NumCommercialGlobal = ?"
+        cursor.execute(query, num_commercial)
         result = cursor.fetchone()
         if result:
             return result
