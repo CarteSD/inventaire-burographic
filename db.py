@@ -115,11 +115,11 @@ def get_article_stock(connection, num_commercial):
         return None
     
 # But : Récupérer la définition d'un article
-def get_article_def(connection, id):
+def get_article_def(connection, num_commercial):
     try:
         cursor = connection.cursor()
-        query = "SELECT * FROM ElementDef WHERE Code = ?"
-        cursor.execute(query, id)
+        query = "SELECT * FROM ElementDef WHERE NumCommercialGlobal = ?"
+        cursor.execute(query, num_commercial)
         result = cursor.fetchone()
         if result:
             return result
