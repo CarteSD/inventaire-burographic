@@ -38,7 +38,7 @@ def database_connection():
 def article_exists(connection, item):
     try:
         cursor = connection.cursor()
-        query = "SELECT COUNT(*) FROM ElementDef WHERE Code = ?"
+        query = "SELECT COUNT(*) FROM ElementDef WHERE NumCommercialGlobal = ?"
         cursor.execute(query, item)
         result = cursor.fetchone()
         if result[0] > 0:
