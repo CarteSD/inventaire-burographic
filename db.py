@@ -139,7 +139,7 @@ def create_mvt(connection, typeMvt, article, quantite):
         cursor = connection.cursor()
         # Insertion du mouvement de stock
         query = "INSERT INTO ElementMvtStock (CodeElem, TypeMvt, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        info = f"Inventaire manuel du {datetime.today()}"
+        info = f"Inventaire manuel du {datetime.today().strftime('%d/%m/%Y')}"
         cursor.execute(query, [article[0], typeMvt, 'M', datetime.today(), quantite, article[5], info])
         connection.commit()
 
