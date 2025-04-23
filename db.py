@@ -70,11 +70,11 @@ def famille_exists(connection, famille):
 def get_famille(connection, item):
     try:
         cursor = connection.cursor()
-        query = "SELECT Famille FROM ElementDef WHERE NumCommercialGlobal = ?"
+        query = "SELECT FA.Code, FA.Libelle FROM FamilleArticle FA JOIN ElementDef ED ON FA.Code = ED.Famille WHERE ED.NumCommercialGlobal = ?"
         cursor.execute(query, item)
         result = cursor.fetchone()
         if result:
-            return result[0].rstrip('.')
+            return result
         else:
             return None
 

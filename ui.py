@@ -91,7 +91,7 @@ class Interface:
         # Initialisation du tableau de données pour le rapport d'exécution
         self.report_datas = {
             "errors": {},
-            "details": {},
+            "families_values": {},
             "stats": {
                 "total_articles": 0,
                 "different_articles": 0,
@@ -114,6 +114,18 @@ class Interface:
     def launch_inventory(self):
         # Vider la zone d'informations
         self.text_box.delete(1.0, tk.END)
+
+        # Réinitialiser le rapport d'exécution
+        self.report_datas = {
+            "errors": {},
+            "families_values": {},
+            "stats": {
+                "total_articles": 0,
+                "different_articles": 0,
+                "familles_count": 0,
+                "errors_count": 0
+            }
+        }
 
         # Affichage du message de récupération du fichier d'inventaire
         log_and_display("Récupération du fichier d'inventaire...", self.text_box, self.root)
@@ -231,7 +243,7 @@ class Interface:
             familles = []
             for key in articles_dictionnary.keys():
                 # Récupération de la famille de l'article
-                famille = get_famille(self.connection, key)
+                famille = get_famille(self.connection, key)[0].replace(".", "")
                 if famille is None and key not in undefined_articles:
                     log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
                     error_name = f"Erreur de récupération de famille pour l'article {key}"
@@ -280,7 +292,7 @@ class Interface:
                 family_file = os.path.join(families_directory, f"{famille}.txt")
                 with open(family_file, 'w', encoding='utf-8') as file:
                     for key in articles_dictionnary.keys():
-                        if get_famille(self.connection, key) == famille:
+                        if get_famille(self.connection, key)[0].replace(".", "") == famille:
                             file.write(f"{key};{articles_dictionnary[key]}\n")
 
             # Exécution de la fonction update_stock
@@ -344,7 +356,7 @@ class Interface:
         # Récupérer la quantité en stock théorique
         bd_article = get_article_stock(self.connection, num_commercial)
 
-        code = bd_article[0]
+        code = bd_article[0].replace(".", "")
         pamp = bd_article[5]
         nom = bd_article[7]
 
@@ -361,17 +373,12 @@ class Interface:
         else:
             type_mvt = None
 
-        # Enregistrer les détails pour le rapport
-        self.report_datas["details"][num_commercial] = {
-            "code": code,
-            "nom": nom,
-            "num_commercial": num_commercial,
-            "ancien_stock": qte_stock,
-            "nouveau_stock": real_quantity,
-            "difference": diff,
-            "type_mvt": type_mvt,
-            "pamp": pamp,
-        }
+        # Mettre à jour la somme de l'inventaire de la famille
+        famille_article = get_famille(self.connection, num_commercial)
+        code_famille = famille_article[0].replace(".", "")
+        if self.report_datas["families_values"].get(code_famille, None) is None:
+            self.report_datas["families_values"][code_famille] = 0
+        self.report_datas["families_values"][code_famille] += pamp * qte_stock
 
         # Gestion d'une potentielle erreur lors de la mise à jour
         if type_mvt is not None:
