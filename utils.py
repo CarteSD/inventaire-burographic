@@ -91,10 +91,10 @@ def generate_report(report_data):
             # Déterminer l'action et la classe CSS pour le style
             if type_mvt == 'E':
                 action = "Ajout"
-                row_class = "edited"
+                row_class = "added"
             elif type_mvt == 'S':
                 action = "Retrait"
-                row_class = "edited"
+                row_class = "removed"
             else:
                 action = "Inchangé"
                 row_class = "unchanged"
