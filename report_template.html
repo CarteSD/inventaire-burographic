@@ -75,13 +75,16 @@
             text-align: left;
             padding: 12px 15px;
             border-bottom: 1px solid #e1e1e1;
+            word-wrap: break-word;
+            max-width: 200px;
         }
         th {
             background-color: #f5f5f5;
             font-weight: bold;
+            font-size: 14px;
         }
-        tr:hover {
-            background-color: #f9f9f9;
+        td {
+            font-size: 13px;
         }
         .section {
             margin-bottom: 40px;
@@ -144,28 +147,15 @@
             overflow-x: auto;
             margin-bottom: 20px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-        th, td {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid #e1e1e1;
-        }
-        th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-        }
-        tr.addition {
-            background-color: #d4edda;
-        }
-        tr.subtraction {
-            background-color: #f8d7da;
+        tr.edited {
+            background-color: #d1edfd;
         }
         tr.unchanged {
             background-color: #f8f9fa;
+        }
+        .total-row {
+            font-weight: bold;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -227,6 +217,8 @@
                             <th>Nouveau stock</th>
                             <th>Différence</th>
                             <th>Action</th>
+                            <th>P.A.M.P.</th>
+                            <th>Valeur</th>
                         </tr>
                     </thead>
                     <tbody id="details-container">

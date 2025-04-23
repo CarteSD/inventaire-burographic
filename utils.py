@@ -73,6 +73,7 @@ def generate_report(report_data):
     
     # Génération du contenu HTML pour les détails des articles
     details_html = ""
+    valeur_totale = 0
     if details:
         for num_commercial, article_detail in details.items():
             code = article_detail.get("code")
@@ -81,14 +82,19 @@ def generate_report(report_data):
             nouveau_stock = article_detail.get("nouveau_stock")
             difference = article_detail.get("difference")
             type_mvt = article_detail.get("type_mvt")
+            pamp = round(article_detail.get("pamp"), 2)
+            valeur = round(nouveau_stock * pamp, 2)
+
+            # Ajouter la valeur à la valeur totale de l'inventaire
+            valeur_totale += valeur
             
             # Déterminer l'action et la classe CSS pour le style
             if type_mvt == 'E':
                 action = "Ajout"
-                row_class = "addition"
+                row_class = "edited"
             elif type_mvt == 'S':
                 action = "Retrait"
-                row_class = "subtraction"
+                row_class = "edited"
             else:
                 action = "Inchangé"
                 row_class = "unchanged"
@@ -102,8 +108,19 @@ def generate_report(report_data):
                 <td>{nouveau_stock}</td>
                 <td>{difference}</td>
                 <td>{action}</td>
+                <td>{pamp}</td>
+                <td>{valeur}</td>
             </tr>
             """
+
+        # Ajouter la ligne de total à la fin du tableau
+        details_html += f"""
+        <tr class="total-row">
+            <td colspan="8" style="text-align: right;">Valeur totale de l'inventaire :</td>
+            <td>{round(valeur_totale, 2)}</td>
+        </tr>
+        """
+
     else:
         details_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
 

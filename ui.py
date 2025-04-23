@@ -345,6 +345,7 @@ class Interface:
         bd_article = get_article_stock(self.connection, num_commercial)
 
         code = bd_article[0]
+        pamp = bd_article[5]
         nom = bd_article[7]
 
         qte_appro = bd_article[2]
@@ -368,7 +369,8 @@ class Interface:
             "ancien_stock": qte_stock,
             "nouveau_stock": real_quantity,
             "difference": diff,
-            "type_mvt": type_mvt
+            "type_mvt": type_mvt,
+            "pamp": pamp,
         }
 
         # Gestion d'une potentielle erreur lors de la mise à jour
