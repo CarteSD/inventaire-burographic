@@ -10,7 +10,6 @@ from datetime import datetime
 from constantes import *
 import os
 import sys
-from db import *
 
 # But : Écrire un message dans le fichier de log
 def write_log(message):
