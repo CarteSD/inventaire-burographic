@@ -91,6 +91,7 @@ class Interface:
         # Initialisation du tableau de données pour le rapport d'exécution
         self.report_datas = {
             "errors": {},
+            "details": {},
             "stats": {
                 "total_articles": 0,
                 "different_articles": 0,
@@ -327,7 +328,7 @@ class Interface:
     def update_stock(self, correct_stock):
         # Récupérer tous les articles de la base de données
         all_articles = get_all_articles(self.connection)
-        
+
         if all_articles is not None:
             for article in all_articles:
                 num_commercial = article[6]
@@ -342,6 +343,9 @@ class Interface:
     def compare_and_update_article_stock(self, code, real_quantity):
         # Récupérer la quantité en stock théorique
         bd_article = get_article_stock(self.connection, code)
+
+        num_commercial = bd_article[7]
+
         qte_appro = bd_article[2]
         qte_conso = bd_article[3]
         qte_stock = qte_appro - qte_conso
@@ -354,6 +358,15 @@ class Interface:
             type_mvt = 'E'
         else:
             type_mvt = None
+
+        # Enregistrer les détails pour le rapport
+        self.report_datas["details"][code] = {
+            "nom": num_commercial,
+            "ancien_stock": qte_stock,
+            "nouveau_stock": real_quantity,
+            "difference": diff,
+            "type_mvt": type_mvt
+        }
 
         # Gestion d'une potentielle erreur lors de la mise à jour
         if type_mvt is not None:

@@ -140,6 +140,33 @@
                 display: none;
             }
         }
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        tr.addition {
+            background-color: #d4edda;
+        }
+        tr.subtraction {
+            background-color: #f8d7da;
+        }
+        tr.unchanged {
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -184,6 +211,27 @@
             <h2>Liste des erreurs ({{errors_count}})</h2>
             <div id="errors-container">
                 {{errors_html}}
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Détails des articles</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Ancien stock</th>
+                            <th>Nouveau stock</th>
+                            <th>Différence</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="details-container">
+                        {{details_html}}
+                    </tbody>
+                </table>
             </div>
         </div>
 

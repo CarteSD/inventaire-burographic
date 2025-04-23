@@ -26,7 +26,7 @@ def log_and_display(message, text_box, root, delay=0):
     root.update()
     write_log(message)
 
-
+# But : Générer un rapport d'exécution au format HTML
 def generate_report(report_data):
     # Vérification que report_data est bien un dictionnaire
     if not isinstance(report_data, dict):
@@ -37,7 +37,6 @@ def generate_report(report_data):
     timestamp = now.strftime("%Y-%m-%d")
     report_id = f"{timestamp}"
     report_filename = f"rapport_execution_{report_id}.html"
-
 
     # Date et heure formatées pour l'affichage
     date_str = now.strftime("%d/%m/%Y")
@@ -52,6 +51,7 @@ def generate_report(report_data):
 
     # Extraction des erreurs et familles avec vérification du type
     errors = report_data.get("errors", {})
+    details = report_data.get("details", {})
 
     # Génération du contenu HTML pour les erreurs
     errors_html = ""
@@ -70,6 +70,40 @@ def generate_report(report_data):
             """
     else:
         errors_html = '<p>Aucune erreur n\'a été enregistrée durant l\'exécution.</p>'
+    
+    # Génération du contenu HTML pour les détails des articles
+    details_html = ""
+    if details:
+        for code, article_detail in details.items():
+            nom = article_detail.get("nom")
+            ancien_stock = article_detail.get("ancien_stock")
+            nouveau_stock = article_detail.get("nouveau_stock")
+            difference = article_detail.get("difference")
+            type_mvt = article_detail.get("type_mvt")
+            
+            # Déterminer l'action et la classe CSS pour le style
+            if type_mvt == 'E':
+                action = "Ajout"
+                row_class = "addition"
+            elif type_mvt == 'S':
+                action = "Retrait"
+                row_class = "subtraction"
+            else:
+                action = "Inchangé"
+                row_class = "unchanged"
+            
+            details_html += f"""
+            <tr class="{row_class}">
+                <td>{code}</td>
+                <td>{nom}</td>
+                <td>{ancien_stock}</td>
+                <td>{nouveau_stock}</td>
+                <td>{difference}</td>
+                <td>{action}</td>
+            </tr>
+            """
+    else:
+        details_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
 
     # Charger le template
     template_path = resource_path("report_template.html")
@@ -85,6 +119,7 @@ def generate_report(report_data):
     html_content = html_content.replace("{{familles_count}}", str(familles_count))
     html_content = html_content.replace("{{errors_count}}", str(errors_count))
     html_content = html_content.replace("{{errors_html}}", errors_html)
+    html_content = html_content.replace("{{details_html}}", details_html)
 
     # Enregistrer le fichier
     output_dir = f"inventaires/inventaire_{report_id}"
