@@ -340,11 +340,12 @@ class Interface:
                     self.compare_and_update_article_stock(num_commercial, 0)
 
     # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
-    def compare_and_update_article_stock(self, code, real_quantity):
+    def compare_and_update_article_stock(self, num_commercial, real_quantity):
         # Récupérer la quantité en stock théorique
-        bd_article = get_article_stock(self.connection, code)
+        bd_article = get_article_stock(self.connection, num_commercial)
 
-        num_commercial = bd_article[7]
+        code = bd_article[0]
+        nom = bd_article[7]
 
         qte_appro = bd_article[2]
         qte_conso = bd_article[3]
@@ -360,8 +361,10 @@ class Interface:
             type_mvt = None
 
         # Enregistrer les détails pour le rapport
-        self.report_datas["details"][code] = {
-            "nom": num_commercial,
+        self.report_datas["details"][num_commercial] = {
+            "code": code,
+            "nom": nom,
+            "num_commercial": num_commercial,
             "ancien_stock": qte_stock,
             "nouveau_stock": real_quantity,
             "difference": diff,

@@ -74,7 +74,8 @@ def generate_report(report_data):
     # Génération du contenu HTML pour les détails des articles
     details_html = ""
     if details:
-        for code, article_detail in details.items():
+        for num_commercial, article_detail in details.items():
+            code = article_detail.get("code")
             nom = article_detail.get("nom")
             ancien_stock = article_detail.get("ancien_stock")
             nouveau_stock = article_detail.get("nouveau_stock")
@@ -95,6 +96,7 @@ def generate_report(report_data):
             details_html += f"""
             <tr class="{row_class}">
                 <td>{code}</td>
+                <td>{num_commercial}</td>
                 <td>{nom}</td>
                 <td>{ancien_stock}</td>
                 <td>{nouveau_stock}</td>
