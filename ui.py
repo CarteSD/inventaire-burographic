@@ -375,10 +375,12 @@ class Interface:
 
         # Mettre à jour la somme de l'inventaire de la famille
         famille_article = get_famille(self.connection, num_commercial)
-        code_famille = famille_article[0].replace(".", "")
+        code_famille = famille_article[0]
         if self.report_datas["families_values"].get(code_famille, None) is None:
-            self.report_datas["families_values"][code_famille] = 0
-        self.report_datas["families_values"][code_famille] += pamp * qte_stock
+            self.report_datas["families_values"][code_famille] = {}
+            self.report_datas["families_values"][code_famille]["libelle"] = famille_article[1]
+            self.report_datas["families_values"][code_famille]["value"] = 0
+        self.report_datas["families_values"][code_famille]["value"] += pamp * qte_stock
 
         # Gestion d'une potentielle erreur lors de la mise à jour
         if type_mvt is not None:

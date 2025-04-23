@@ -10,6 +10,7 @@ from datetime import datetime
 from constantes import *
 import os
 import sys
+from db import *
 
 # But : Écrire un message dans le fichier de log
 def write_log(message):
@@ -51,7 +52,7 @@ def generate_report(report_data):
 
     # Extraction des erreurs et familles avec vérification du type
     errors = report_data.get("errors", {})
-    details = report_data.get("details", {})
+    families_values = report_data.get("families_values", {})
 
     # Génération du contenu HTML pour les erreurs
     errors_html = ""
@@ -72,57 +73,31 @@ def generate_report(report_data):
         errors_html = '<p>Aucune erreur n\'a été enregistrée durant l\'exécution.</p>'
     
     # Génération du contenu HTML pour les détails des articles
-    details_html = ""
+    details_families_html = ""
     valeur_totale = 0
-    if details:
-        for num_commercial, article_detail in details.items():
-            code = article_detail.get("code")
-            nom = article_detail.get("nom")
-            ancien_stock = article_detail.get("ancien_stock")
-            nouveau_stock = article_detail.get("nouveau_stock")
-            difference = article_detail.get("difference")
-            type_mvt = article_detail.get("type_mvt")
-            pamp = round(article_detail.get("pamp"), 2)
-            valeur = round(nouveau_stock * pamp, 2)
-
+    if families_values:
+        for code, datas in families_values.items():
             # Ajouter la valeur à la valeur totale de l'inventaire
-            valeur_totale += valeur
+            valeur_totale += datas["value"]
             
-            # Déterminer l'action et la classe CSS pour le style
-            if type_mvt == 'E':
-                action = "Ajout"
-                row_class = "added"
-            elif type_mvt == 'S':
-                action = "Retrait"
-                row_class = "removed"
-            else:
-                action = "Inchangé"
-                row_class = "unchanged"
-            
-            details_html += f"""
-            <tr class="{row_class}">
+            details_families_html += f"""
+            <tr>
                 <td>{code}</td>
-                <td>{num_commercial}</td>
-                <td>{nom}</td>
-                <td>{ancien_stock}</td>
-                <td>{nouveau_stock}</td>
-                <td>{difference}</td>
-                <td>{action}</td>
-                <td>{pamp}</td>
-                <td>{valeur}</td>
+                <td>{datas["libelle"]}</td>
+                <td>{round(datas["value"], 2)}</td>
             </tr>
             """
 
         # Ajouter la ligne de total à la fin du tableau
-        details_html += f"""
+        details_families_html += f"""
         <tr class="total-row">
-            <td colspan="8" style="text-align: right;">Valeur totale de l'inventaire :</td>
+            <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
             <td>{round(valeur_totale, 2)}</td>
         </tr>
         """
 
     else:
-        details_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
+        details_families_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
 
     # Charger le template
     template_path = resource_path("report_template.html")
@@ -138,7 +113,7 @@ def generate_report(report_data):
     html_content = html_content.replace("{{familles_count}}", str(familles_count))
     html_content = html_content.replace("{{errors_count}}", str(errors_count))
     html_content = html_content.replace("{{errors_html}}", errors_html)
-    html_content = html_content.replace("{{details_html}}", details_html)
+    html_content = html_content.replace("{{details_families}}", details_families_html)
 
     # Enregistrer le fichier
     output_dir = f"inventaires/inventaire_{report_id}"

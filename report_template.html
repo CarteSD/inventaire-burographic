@@ -208,27 +208,22 @@
         </div>
 
         <div class="section">
-            <h2>Détails des articles</h2>
+            <h2>Récapitulatif par famille</h2>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>Code</th>
-                            <th>Num. commer.</th>
-                            <th>Nom</th>
-                            <th>Ancien stock</th>
-                            <th>Nouveau stock</th>
-                            <th>Différence</th>
-                            <th>Action</th>
-                            <th>P.A.M.P.</th>
-                            <th>Valeur</th>
+                            <th>Libellé</th>
+                            <th>Valeur du stock</th>
                         </tr>
                     </thead>
                     <tbody id="details-container">
-                        {{details_html}}
+                        {{details_families}}
                     </tbody>
                 </table>
             </div>
+            <p>N.b. : Les familles ne possédant pas d'articles ne sont pas prises en compte.</p>
         </div>
 
         <footer>
