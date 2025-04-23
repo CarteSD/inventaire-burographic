@@ -91,6 +91,7 @@ class Interface:
         # Initialisation du tableau de données pour le rapport d'exécution
         self.report_datas = {
             "errors": {},
+            "details": {},
             "stats": {
                 "total_articles": 0,
                 "different_articles": 0,
@@ -330,18 +331,23 @@ class Interface:
 
         if all_articles is not None:
             for article in all_articles:
-                code_article = article[0]
-                if code_article in correct_stock:
+                num_commercial = article[6]
+                if num_commercial in correct_stock:
                     # Mettre à jour l'article dans la base de données
-                    self.compare_and_update_article_stock(code_article, correct_stock[code_article])
+                    self.compare_and_update_article_stock(num_commercial, correct_stock[num_commercial])
                 else:
                     # Mettre la valeur du stock à 0
-                    self.compare_and_update_article_stock(code_article, 0)
+                    self.compare_and_update_article_stock(num_commercial, 0)
 
     # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
-    def compare_and_update_article_stock(self, code, real_quantity):
+    def compare_and_update_article_stock(self, num_commercial, real_quantity):
         # Récupérer la quantité en stock théorique
-        bd_article = get_article_stock(self.connection, code)
+        bd_article = get_article_stock(self.connection, num_commercial)
+
+        code = bd_article[0]
+        pamp = bd_article[5]
+        nom = bd_article[7]
+
         qte_appro = bd_article[2]
         qte_conso = bd_article[3]
         qte_stock = qte_appro - qte_conso
@@ -354,6 +360,18 @@ class Interface:
             type_mvt = 'E'
         else:
             type_mvt = None
+
+        # Enregistrer les détails pour le rapport
+        self.report_datas["details"][num_commercial] = {
+            "code": code,
+            "nom": nom,
+            "num_commercial": num_commercial,
+            "ancien_stock": qte_stock,
+            "nouveau_stock": real_quantity,
+            "difference": diff,
+            "type_mvt": type_mvt,
+            "pamp": pamp,
+        }
 
         # Gestion d'une potentielle erreur lors de la mise à jour
         if type_mvt is not None:
