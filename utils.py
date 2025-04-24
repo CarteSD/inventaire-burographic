@@ -10,6 +10,7 @@ from datetime import datetime
 from constantes import *
 import os
 import sys
+import pdfkit
 
 # But : Écrire un message dans le fichier de log
 def write_log(message):
@@ -36,7 +37,7 @@ def generate_report(report_data):
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d")
     report_id = f"{timestamp}"
-    report_filename = f"rapport_execution_{report_id}.html"
+    report_filename = f"rapport_execution_{report_id}.pdf"
 
     # Date et heure formatées pour l'affichage
     date_str = now.strftime("%d/%m/%Y")
@@ -118,10 +119,72 @@ def generate_report(report_data):
     output_dir = f"inventaires/inventaire_{report_id}"
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, report_filename)
+    
+    config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+    options = {
+        'margin-bottom': '1.5cm',
+        'footer-right': '[page]/[topage]',
+        'footer-font-size': '10',
+    }
+    pdfkit.from_string(html_content, report_path, options=options, configuration=config)
+    
+    return report_path
 
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
+# But : Générer un rapport de stock HTML pour une famille d'articles
+def generate_family_report(family_code, family_name, articles_data):
+    # Préparation des données
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    
+    # Génération du contenu HTML pour les détails des articles
+    details_html = ""
+    total_value = 0
+    
+    for code, article_data in articles_data.items():
+        quantite = article_data.get("quantite", 0)
+        prix_unitaire = round(article_data.get("prix", 0), 2)
+        prix_total = round(quantite * prix_unitaire, 2)
+        total_value += round(prix_total, 2)
+        
+        details_html += f"""
+        <tr>
+            <td>{code}</td>
+            <td>{article_data.get("nom", "")}</td>
+            <td class="right-align">{quantite}</td>
+            <td class="right-align">{prix_unitaire}</td>
+            <td class="right-align">{prix_total}</td>
+        </tr>
+        """
+    
+    # Ajout de la ligne de total
+    details_html += f"""
+    <tr>
+        <td colspan="4" class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">TOTAL:</td>
+        <td class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">{total_value}</td>
+    </tr>
+    """
+    
+    # Charger le template
+    template_path = resource_path("family_inventory_template.html")
+    with open(template_path, "r", encoding="utf-8") as f:
+        template = f.read()
+    
+    # Remplacer les variables dans le template
+    html_content = template.replace("{date_jour}", date_str)
+    html_content = html_content.replace("{famille}", f"{family_code} - {family_name}")
+    html_content = html_content.replace("{details_html}", details_html)
 
+    output_dir = f"inventaires/inventaire_{date_str}/familles_rapports"
+    os.makedirs(output_dir, exist_ok=True)
+    report_path = os.path.join(output_dir, f"{family_code}.pdf")
+    
+    config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+    options = {
+        'margin-left': '1.5cm',
+        'footer-right': '[page]/[topage]',
+        'footer-font-size': '10',
+    }
+    pdfkit.from_string(html_content, report_path, options=options, configuration=config)
+    
     return report_path
 
 # But : Obtient le chemin absolu du fichier ou dossier spécifié
