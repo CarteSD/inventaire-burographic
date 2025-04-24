@@ -133,7 +133,8 @@ def generate_report(report_data):
 # But : Générer un rapport de stock HTML pour une famille d'articles
 def generate_family_report(family_code, family_name, articles_data):
     # Préparation des données
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    date_str = datetime.now().strftime("%d/%m/%Y")
+    date_path = datetime.now().strftime("%Y-%m-%d")
     
     # Génération du contenu HTML pour les détails des articles
     details_html = ""
@@ -181,7 +182,7 @@ def generate_family_report(family_code, family_name, articles_data):
     html_content = html_content.replace("{famille}", f"{family_code} - {family_name}")
     html_content = html_content.replace("{details_html}", details_html)
 
-    output_dir = f"inventaires/inventaire_{date_str}/familles_rapports"
+    output_dir = f"inventaires/inventaire_{date_path}/familles_rapports"
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, f"{family_code}.pdf")
     
