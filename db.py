@@ -102,7 +102,7 @@ def get_all_articles(connection):
 def get_article_stock(connection, num_commercial):
     try:
         cursor = connection.cursor()
-        query = "SELECT ES.*, ED.NumCommercialGlobal, ED.Libelle FROM ElementStock ES JOIN ElementDef ED ON ES.CodeElem = ED.Code WHERE ED.NumCommercialGlobal = ?"
+        query = "SELECT ES.*, ED.NumCommercialGlobal, ED.LibelleStd FROM ElementStock ES JOIN ElementDef ED ON ES.CodeElem = ED.Code WHERE ED.NumCommercialGlobal = ?"
         cursor.execute(query, num_commercial)
         result = cursor.fetchone()
         if result:
