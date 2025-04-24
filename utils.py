@@ -39,9 +39,8 @@ def generate_report(report_data):
     report_id = f"{timestamp}"
     report_filename = f"rapport_execution_{report_id}.pdf"
 
-    # Date et heure formatées pour l'affichage
+    # Date formatée pour l'affichage
     date_str = now.strftime("%d/%m/%Y")
-    time_str = now.strftime("%H:%M")
 
     # Extraction des statistiques
     stats = report_data.get("stats", {})
@@ -106,7 +105,6 @@ def generate_report(report_data):
 
     # Remplacer les variables dans le template
     html_content = template.replace("{{date_str}}", date_str)
-    html_content = html_content.replace("{{time_str}}", time_str)
     html_content = html_content.replace("{{report_id}}", report_id)
     html_content = html_content.replace("{{total_articles}}", str(total_articles))
     html_content = html_content.replace("{{different_articles}}", str(different_articles))
@@ -124,7 +122,7 @@ def generate_report(report_data):
     options = {
         'margin-bottom': '1.5cm',
         'footer-right': '[page]/[topage]',
-        'footer-font-size': '10',
+        'footer-font-size': '8',
     }
     pdfkit.from_string(html_content, report_path, options=options, configuration=config)
     

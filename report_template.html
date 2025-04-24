@@ -63,13 +63,6 @@
             font-size: 24px;
             font-weight: bold;
         }
-        footer {
-            margin-top: 40px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-            font-size: 12px;
-            color: #666;
-        }
         @media print {
             .stat-card {
                 width: 24%;
@@ -79,10 +72,9 @@
 </head>
 <body>
     <header>
-        <h1>Rapport d'exécution</h1>
+        <h1>Inventaire Burographic</h1>
         <div class="meta-info">
-            <div>Date du rapport: <strong>{{date_str}}</strong></div>
-            <div>Heure de génération: <strong>{{time_str}}</strong></div>
+            <div>Date de l'exécution : <strong>{{date_str}}</strong></div>
         </div>
     </header>
 
@@ -130,9 +122,5 @@
             {{errors_html}}
         </div>
     </div>
-
-    <footer>
-        <p>Rapport généré automatiquement le {{date_str}} à {{time_str}}</p>
-    </footer>
 </body>
 </html>
