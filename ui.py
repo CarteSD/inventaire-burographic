@@ -420,10 +420,22 @@ class Interface:
 
         # Mettre à jour la somme de l'inventaire de la famille
         famille_article = get_famille(self.connection, num_commercial)
-        code_famille = famille_article[0]
+
+        # Vérifier si la famille existe
+        if famille_article is None:
+            # Gérer le cas d'une famille inexistante
+            log_and_display(f"L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
+            # Utiliser une famille par défaut pour le rapport
+            code_famille = "INCONNU."
+            famille_libelle = "Articles sans famille"
+        else:
+            code_famille = famille_article[0]
+            famille_libelle = famille_article[1]
+
+        # Mettre à jour les valeurs dans le rapport
         if self.report_datas["families_values"].get(code_famille, None) is None:
             self.report_datas["families_values"][code_famille] = {}
-            self.report_datas["families_values"][code_famille]["libelle"] = famille_article[1]
+            self.report_datas["families_values"][code_famille]["libelle"] = famille_libelle
             self.report_datas["families_values"][code_famille]["value"] = 0
         self.report_datas["families_values"][code_famille]["value"] += pamp * qte_stock
 
