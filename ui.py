@@ -112,6 +112,11 @@ class Interface:
 
     # But : Lancer la création de l'inventaire
     def launch_inventory(self):
+        # Désactiver les boutons
+        self.launch_inventory_button.config(state=tk.DISABLED)
+        self.browse_button.config(state=tk.DISABLED)
+        self.root.update()
+
         # Vider la zone d'informations
         self.text_box.delete(1.0, tk.END)
 
@@ -380,6 +385,12 @@ class Interface:
                 except:
                     pass
             return
+        
+        finally:
+            # Réactiver les boutons
+            self.launch_inventory_button.config(state=tk.NORMAL)
+            self.browse_button.config(state=tk.NORMAL)
+            self.root.update()
 
     # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correct_stock):
