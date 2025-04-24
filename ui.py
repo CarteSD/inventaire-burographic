@@ -435,17 +435,17 @@ class Interface:
             self.report_datas["families_values"][code_famille] = {}
             self.report_datas["families_values"][code_famille]["libelle"] = famille_libelle
             self.report_datas["families_values"][code_famille]["value"] = 0
-        self.report_datas["families_values"][code_famille]["value"] += pamp * qte_stock
+        self.report_datas["families_values"][code_famille]["value"] += pamp * real_quantity
 
         # Gestion d'une potentielle erreur lors de la mise à jour
         if type_mvt is not None:
-            log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {real_quantity}", self.text_box, self.root, 0.05)
+            log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {real_quantity}", self.text_box, self.root, 0.02)
             if not create_mvt(self.connection, type_mvt, bd_article, diff) :
-                log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.05)
+                log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.02)
             else:
                 write_log(f"Mise à jour de l'article {code} réussie")
         else:
-            log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root, 0.05)
+            log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root, 0.02)
 
     # But : Récupérer le nom / libellé d'un article
     def get_article_name(self, code):
