@@ -139,27 +139,35 @@ def generate_family_report(family_code, family_name, articles_data):
     details_html = ""
     total_value = 0
     
+    # Formatage des montants avec deux décimales fixes
     for code, article_data in articles_data.items():
         quantite = article_data.get("quantite", 0)
         prix_unitaire = round(article_data.get("prix", 0), 2)
         prix_total = round(quantite * prix_unitaire, 2)
-        total_value += round(prix_total, 2)
+        total_value += prix_total
+        
+        # Formatage avec deux décimales fixes
+        prix_unitaire_fmt = f"{prix_unitaire:.2f}".replace('.', ',')
+        prix_total_fmt = f"{prix_total:.2f}".replace('.', ',')
         
         details_html += f"""
         <tr>
             <td>{code}</td>
             <td>{article_data.get("nom", "")}</td>
             <td class="right-align">{quantite}</td>
-            <td class="right-align">{prix_unitaire}</td>
-            <td class="right-align">{prix_total}</td>
+            <td class="right-align">{prix_unitaire_fmt}</td>
+            <td class="right-align">{prix_total_fmt}</td>
         </tr>
         """
-    
+
+    # Formatage du total avec deux décimales fixes
+    total_value_fmt = f"{round(total_value, 2):.2f}".replace('.', ',')
+
     # Ajout de la ligne de total
     details_html += f"""
     <tr>
         <td colspan="4" class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">TOTAL:</td>
-        <td class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">{total_value}</td>
+        <td class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">{total_value_fmt}</td>
     </tr>
     """
     
