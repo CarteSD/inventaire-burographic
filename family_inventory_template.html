@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventaire Burographic</title>
+    <title>Inventaire {date_jour} - {famille}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,25 +93,24 @@
                 <td colspan="5" style="padding-bottom: 15px;">
                     <div class="title">INVENTAIRE BUROGRAPHIC</div>
                     <div class="date-container">
-                        <div>Inventaire en date du {date_inventaire}</div>
+                        <div>Inventaire en date du {date_jour}</div>
                         <div>{date_jour}</div>
                     </div>
-                    <div class="identifier">{identifiant}</div>
+                    <div class="identifier">{famille}</div>
                     <div class="page-number">Page {numero_page}</div>
                 </td>
             </tr>
             <tr class="header-row">
                 <th>Référence</th>
                 <th>Désignation</th>
-                <th>Qté stock</th>
-                <th>PRIX UNITAIRE</th>
-                <th>PRIX TOTAL</th>
+                <th class="right-align">Qté stock</th>
+                <th class="right-align">PRIX UNITAIRE</th>
+                <th class="right-align">PRIX TOTAL</th>
             </tr>
         </thead>
         <tbody>
             {details_html}
         </tbody>
-
     </table>
 </body>
 </html>
