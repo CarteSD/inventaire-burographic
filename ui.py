@@ -403,7 +403,6 @@ class Interface:
 
         code = bd_article[0].replace(".", "")
         pamp = bd_article[5]
-        nom = bd_article[7]
 
         qte_appro = bd_article[2]
         qte_conso = bd_article[3]
@@ -425,9 +424,8 @@ class Interface:
         if famille_article is None:
             # Gérer le cas d'une famille inexistante
             log_and_display(f"L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
-            # Utiliser une famille par défaut pour le rapport
-            code_famille = "INCONNU."
-            famille_libelle = "Articles sans famille"
+            self.report_datas["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
+            return
         else:
             code_famille = famille_article[0]
             famille_libelle = famille_article[1]
