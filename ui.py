@@ -311,9 +311,54 @@ class Interface:
             log_and_display(f"Finalisation de l'inventaire...", self.text_box, self.root, 0.5)
             shutil.move(temp_inventory_directory, this_inventory_directory)
 
+            # Après avoir finalisé l'inventaire
             log_and_display("Inventaire terminé.", self.text_box, self.root, 1)
 
-            # Génération du rapport d'exécution
+            # Génération des rapports HTML par famille
+            log_and_display("Génération des rapports par famille...", self.text_box, self.root, 1)
+            current_date_ymd = datetime.now().strftime("%Y-%m-%d")  # Format pour le chemin du dossier
+
+            # Pour chaque famille, collecter les articles et générer un rapport
+            for famille in familles:
+                log_and_display(f"Génération du rapport pour la famille {famille}...", self.text_box, self.root, 0.5)
+                # Récupérer tous les articles de cette famille
+                famille_articles = {}
+                for key, value in articles_dictionnary.items():
+                    try:
+                        article_famille = get_famille(self.connection, key)[0].replace(".", "")
+                        if article_famille == famille:
+                            # Récupérer les détails de l'article
+                            article_data = get_article_stock(self.connection, key)
+                            if article_data:
+                                # Créer une entrée dans le dictionnaire
+                                famille_articles[key] = {
+                                    "nom": article_data[7],       # Le nom/libellé de l'article
+                                    "quantite": value,            # La quantité scannée
+                                    "prix": article_data[5]       # Le prix moyen pondéré (PAMP)
+                                }
+                    except Exception as e:
+                        write_log(f"[ERREUR] Impossible de récupérer les détails de l'article {key}: {str(e)}")
+                
+                # Générer le rapport pour cette famille si des articles sont présents
+                if famille_articles:
+                    famille_name = ""
+                    try:
+                        # Récupérer le nom complet de la famille
+                        cursor = self.connection.cursor()
+                        query = "SELECT Libelle FROM FamilleArticle WHERE Code = ?"
+                        cursor.execute(query, [famille + '.'])
+                        result = cursor.fetchone()
+                        if result:
+                            famille_name = result[0]
+                    except Exception as e:
+                        write_log(f"[ERREUR] Impossible de récupérer le nom de la famille {famille}: {str(e)}")
+                        famille_name = famille
+                    
+                    # Générer le rapport HTML
+                    family_report = generate_family_report(famille, famille_name, famille_articles)
+                    log_and_display(f"Rapport généré pour la famille {famille}: {os.path.basename(family_report)}", self.text_box, self.root)
+
+            # Génération du rapport d'exécution global
             log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
             self.report_datas["stats"]["errors_count"] = len(self.report_datas["errors"])
             report = generate_report(self.report_datas)
