@@ -194,6 +194,7 @@ class Interface:
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articles_dictionnary = {}
             undefined_articles = []
+            familles = []
             for code in raw_datas:
                 code = code.replace("\n", "").strip()
                 if code == "":
@@ -228,10 +229,31 @@ class Interface:
                             shutil.rmtree(temp_inventory_directory)
                             return
                 else:
-                    if code in articles_dictionnary:
-                        articles_dictionnary[code] += 1
+                    if code not in articles_dictionnary:
+                        famille = get_famille(self.connection, code)
+                        if famille is None :
+                            if code not in undefined_articles:
+                                log_and_display(f"L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
+                                error_name = f"Famille invalide pour l'article {code}"
+                                skip = messagebox.askyesno("Famille invalide", f"L'article {code} n'a pas de famille valide associée.\n\n Voulez-vous l'ignorer et continuer ?")
+                                if skip:
+                                    undefined_articles.append(code)
+                                    log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
+                                    self.report_datas["errors"][error_name] = f"L'article {code} n'a pas de famille valide associée. Ignoré, opération reprise."
+                                    continue
+                                else:
+                                    log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
+
+                                    # Nettoyage du dossier temporaire
+                                    shutil.rmtree(temp_inventory_directory)
+                                    return
+                        else:
+                            famille = famille[0].replace(".", "")
+                            if famille not in familles:
+                                familles.append(famille)
+                            articles_dictionnary[code] = 1
                     else:
-                        articles_dictionnary[code] = 1
+                        articles_dictionnary[code] += 1
 
             # Copie du fichier brut pour en garder une trace
             raw_file = os.path.join(temp_inventory_directory, f"inventaire_brut_{current_date}.txt")
@@ -243,44 +265,6 @@ class Interface:
                 for key, value in articles_dictionnary.items():
                     file.write(f"{key};{value}\n")
                     self.report_datas["stats"]["different_articles"] += 1
-
-            # Création du tableau des familles scannées
-            familles = []
-            for key in articles_dictionnary.keys():
-                # Récupération de la famille de l'article
-                famille = get_famille(self.connection, key)[0].replace(".", "")
-                if famille is None and key not in undefined_articles:
-                    log_and_display(f"La récupération de la famille pour l'article {key} a échoué", self.text_box, self.root)
-                    error_name = f"Erreur de récupération de famille pour l'article {key}"
-                    skip = messagebox.askyesno("Échec de récupération",
-                                            f"La récupération de la famille pour l'article {key} a échoué.\n\n Voulez-vous l'ignorer et continuer ?")
-                    if skip:
-                        log_and_display(f"Article {key} ignoré.", self.text_box, self.root, 0.5)
-                        self.report_datas["errors"][error_name] = f"Article {key} ignoré, dû a une erreur de récupération de famille en base de données. Ignoré, opération reprise."
-                        continue
-                    else:
-                        log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-
-                        # Nettoyage du dossier temporaire
-                        shutil.rmtree(temp_inventory_directory)
-                        return
-                if famille not in familles:
-                    if not famille_exists(self.connection, famille):
-                        log_and_display(f"La famille {famille} n'existe pas dans la base de données", self.text_box, self.root)
-                        error_name = f"Famille {famille} inexistante"
-                        skip = messagebox.askyesno("Famille inexistante",
-                                                f"La famille {famille} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
-                        if skip:
-                            log_and_display(f"Famille {famille} ignorée.", self.text_box, self.root, 0.5)
-                            self.report_datas["errors"][error_name] = f"Famille {famille} absente en base de données. Ignoré, opération reprise"
-                            continue
-                        else:
-                            log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
-
-                            # Nettoyage du dossier temporaire
-                            shutil.rmtree(temp_inventory_directory)
-                            return
-                    familles.append(famille)
 
             # Ajout du nombre de familles au rapport d'exécution
             self.report_datas["stats"]["familles_count"] = len(familles)
@@ -434,7 +418,7 @@ class Interface:
         # Vérifier si la famille existe
         if famille_article is None:
             # Gérer le cas d'une famille inexistante
-            log_and_display(f"L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
+            log_and_display(f"L'article {code} n'a pas de famille valide associée. Il a été mis à jour mais ne figurera dans aucun inventaire.", self.text_box, self.root, 0.05)
             self.report_datas["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
             return
         else:
