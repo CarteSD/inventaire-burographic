@@ -281,7 +281,9 @@ class Interface:
                 family_file = os.path.join(families_directory, f"{family}.txt")
                 with open(family_file, 'w', encoding='utf-8') as file:
                     for key in articles_dictionnary.keys():
-                        if get_family(self.connection, key)[0].replace(".", "") == family:
+                        family = get_family(self.connection, key)[0]
+                        if family is not None :
+                            family = family.replace(".", "")
                             file.write(f"{key};{articles_dictionnary[key]}\n")
 
             # Exécution de la fonction update_stock
