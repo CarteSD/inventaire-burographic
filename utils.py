@@ -79,19 +79,25 @@ def generate_report(report_data):
             # Ajouter la valeur à la valeur totale de l'inventaire
             valeur_totale += datas["value"]
             
+            # Formatage avec deux décimales fixes
+            valeur_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
+            
             details_families_html += f"""
             <tr>
                 <td>{code}</td>
                 <td>{datas["libelle"]}</td>
-                <td>{round(datas["value"], 2):.2f}</td>
+                <td class="right-align">{valeur_fmt}</td>
             </tr>
             """
-
+            
+        # Formatage du total avec deux décimales fixes
+        valeur_totale_fmt = f"{round(valeur_totale, 2):.2f}".replace('.', ',')
+        
         # Ajouter la ligne de total à la fin du tableau
         details_families_html += f"""
         <tr class="total-row">
             <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
-            <td>{round(valeur_totale, 2):.2f}</td>
+            <td class="right-align">{valeur_totale_fmt}</td>
         </tr>
         """
 
