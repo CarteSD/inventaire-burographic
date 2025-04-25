@@ -44,9 +44,6 @@ def generate_report(report_data):
 
     # Extraction des statistiques
     stats = report_data.get("stats", {})
-    total_articles = stats.get("total_articles", 0)
-    different_articles = stats.get("different_articles", 0)
-    familles_count = stats.get("familles_count", 0)
     errors_count = stats.get("errors_count", 0)
 
     # Extraction des erreurs et familles avec vérification du type
@@ -73,14 +70,30 @@ def generate_report(report_data):
     
     # Génération du contenu HTML pour les détails des articles
     details_families_html = ""
-    total_value = 0
+    families_values["COPOC."] = {
+        "libelle": "Photocopieur d'occasion",
+        "value": "",
+    }
+    families_values["MO."] = {
+        "libelle": "Matériel d\'occasion",
+        "value": "",
+    }
+    families_values["INFOC."] = {
+        "libelle": "Informatique d\'occasion",
+        "value": "",
+    }
+    families_values["MOB."] = {
+        "libelle": "Mobilier d\'occasion",
+        "value": "",
+    }
     if families_values:
-        for code, datas in families_values.items():
-            # Ajouter la valeur à la valeur totale de l'inventaire
-            total_value += datas["value"]
-            
+        for code, datas in sorted(families_values.items(), key=lambda x: x[0]):
+
             # Formatage avec deux décimales fixes
-            value_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
+            if not isinstance(datas["value"], str):
+                value_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
+            else :
+                value_fmt = datas["value"]
             
             details_families_html += f"""
             <tr>
@@ -89,15 +102,12 @@ def generate_report(report_data):
                 <td class="right-align">{value_fmt}</td>
             </tr>
             """
-            
-        # Formatage du total avec deux décimales fixes
-        total_value_fmt = f"{round(total_value, 2):.2f}".replace('.', ',')
         
         # Ajouter la ligne de total à la fin du tableau
         details_families_html += f"""
         <tr class="total-row">
             <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
-            <td class="right-align">{total_value_fmt}</td>
+            <td class="right-align"></td>
         </tr>
         """
 
@@ -112,9 +122,6 @@ def generate_report(report_data):
     # Remplacer les variables dans le template
     html_content = template.replace("{{date_str}}", date_str)
     html_content = html_content.replace("{{report_id}}", report_id)
-    html_content = html_content.replace("{{total_articles}}", str(total_articles))
-    html_content = html_content.replace("{{different_articles}}", str(different_articles))
-    html_content = html_content.replace("{{familles_count}}", str(familles_count))
     html_content = html_content.replace("{{errors_count}}", str(errors_count))
     html_content = html_content.replace("{{errors_html}}", errors_html)
     html_content = html_content.replace("{{details_families}}", details_families_html)
