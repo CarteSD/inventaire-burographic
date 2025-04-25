@@ -10,6 +10,7 @@ from datetime import datetime
 from constantes import *
 import os
 import sys
+import pdfkit
 
 # But : Écrire un message dans le fichier de log
 def write_log(message):
@@ -36,11 +37,10 @@ def generate_report(report_data):
     now = datetime.now()
     timestamp = now.strftime("%Y-%m-%d")
     report_id = f"{timestamp}"
-    report_filename = f"rapport_execution_{report_id}.html"
+    report_filename = f"rapport_execution_{report_id}.pdf"
 
-    # Date et heure formatées pour l'affichage
+    # Date formatée pour l'affichage
     date_str = now.strftime("%d/%m/%Y")
-    time_str = now.strftime("%H:%M")
 
     # Extraction des statistiques
     stats = report_data.get("stats", {})
@@ -51,7 +51,7 @@ def generate_report(report_data):
 
     # Extraction des erreurs et familles avec vérification du type
     errors = report_data.get("errors", {})
-    details = report_data.get("details", {})
+    families_values = report_data.get("families_values", {})
 
     # Génération du contenu HTML pour les erreurs
     errors_html = ""
@@ -72,57 +72,37 @@ def generate_report(report_data):
         errors_html = '<p>Aucune erreur n\'a été enregistrée durant l\'exécution.</p>'
     
     # Génération du contenu HTML pour les détails des articles
-    details_html = ""
-    valeur_totale = 0
-    if details:
-        for num_commercial, article_detail in details.items():
-            code = article_detail.get("code")
-            nom = article_detail.get("nom")
-            ancien_stock = article_detail.get("ancien_stock")
-            nouveau_stock = article_detail.get("nouveau_stock")
-            difference = article_detail.get("difference")
-            type_mvt = article_detail.get("type_mvt")
-            pamp = round(article_detail.get("pamp"), 2)
-            valeur = round(nouveau_stock * pamp, 2)
-
+    details_families_html = ""
+    total_value = 0
+    if families_values:
+        for code, datas in families_values.items():
             # Ajouter la valeur à la valeur totale de l'inventaire
-            valeur_totale += valeur
+            total_value += datas["value"]
             
-            # Déterminer l'action et la classe CSS pour le style
-            if type_mvt == 'E':
-                action = "Ajout"
-                row_class = "added"
-            elif type_mvt == 'S':
-                action = "Retrait"
-                row_class = "removed"
-            else:
-                action = "Inchangé"
-                row_class = "unchanged"
+            # Formatage avec deux décimales fixes
+            value_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
             
-            details_html += f"""
-            <tr class="{row_class}">
+            details_families_html += f"""
+            <tr>
                 <td>{code}</td>
-                <td>{num_commercial}</td>
-                <td>{nom}</td>
-                <td>{ancien_stock}</td>
-                <td>{nouveau_stock}</td>
-                <td>{difference}</td>
-                <td>{action}</td>
-                <td>{pamp}</td>
-                <td>{valeur}</td>
+                <td>{datas["libelle"]}</td>
+                <td class="right-align">{value_fmt}</td>
             </tr>
             """
-
+            
+        # Formatage du total avec deux décimales fixes
+        total_value_fmt = f"{round(total_value, 2):.2f}".replace('.', ',')
+        
         # Ajouter la ligne de total à la fin du tableau
-        details_html += f"""
+        details_families_html += f"""
         <tr class="total-row">
-            <td colspan="8" style="text-align: right;">Valeur totale de l'inventaire :</td>
-            <td>{round(valeur_totale, 2)}</td>
+            <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
+            <td class="right-align">{total_value_fmt}</td>
         </tr>
         """
 
     else:
-        details_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
+        details_families_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
 
     # Charger le template
     template_path = resource_path("report_template.html")
@@ -131,23 +111,93 @@ def generate_report(report_data):
 
     # Remplacer les variables dans le template
     html_content = template.replace("{{date_str}}", date_str)
-    html_content = html_content.replace("{{time_str}}", time_str)
     html_content = html_content.replace("{{report_id}}", report_id)
     html_content = html_content.replace("{{total_articles}}", str(total_articles))
     html_content = html_content.replace("{{different_articles}}", str(different_articles))
     html_content = html_content.replace("{{familles_count}}", str(familles_count))
     html_content = html_content.replace("{{errors_count}}", str(errors_count))
     html_content = html_content.replace("{{errors_html}}", errors_html)
-    html_content = html_content.replace("{{details_html}}", details_html)
+    html_content = html_content.replace("{{details_families}}", details_families_html)
 
     # Enregistrer le fichier
     output_dir = f"inventaires/inventaire_{report_id}"
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, report_filename)
+    
+    config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+    options = {
+        'margin-bottom': '1.5cm',
+        'footer-right': '[page]/[topage]',
+        'footer-font-size': '8',
+    }
+    pdfkit.from_string(html_content, report_path, options=options, configuration=config)
+    
+    return report_path
 
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
+# But : Générer un rapport de stock HTML pour une famille d'articles
+def generate_family_report(family_code, family_name, articles_data):
+    # Préparation des données
+    date_str = datetime.now().strftime("%d/%m/%Y")
+    date_path = datetime.now().strftime("%Y-%m-%d")
+    
+    # Génération du contenu HTML pour les détails des articles
+    details_html = ""
+    total_value = 0
+    
+    # Formatage des montants avec deux décimales fixes
+    for code, article_data in articles_data.items():
+        quantite = article_data.get("quantite", 0)
+        unit_price = round(article_data.get("prix", 0), 2)
+        total_price = round(quantite * unit_price, 2)
+        total_value += total_price
+        
+        # Formatage avec deux décimales fixes
+        unit_price_fmt = f"{unit_price:.2f}".replace('.', ',')
+        total_price_fmt = f"{total_price:.2f}".replace('.', ',')
+        
+        details_html += f"""
+        <tr>
+            <td>{code}</td>
+            <td>{article_data.get("nom", "")}</td>
+            <td class="right-align">{quantite}</td>
+            <td class="right-align">{unit_price_fmt}</td>
+            <td class="right-align">{total_price_fmt}</td>
+        </tr>
+        """
 
+    # Formatage du total avec deux décimales fixes
+    total_value_fmt = f"{round(total_value, 2):.2f}".replace('.', ',')
+
+    # Ajout de la ligne de total
+    details_html += f"""
+    <tr>
+        <td colspan="4" class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">TOTAL:</td>
+        <td class="right-align" style="font-weight: bold; padding-top: 10px; border-top: 1px solid #000;">{total_value_fmt}</td>
+    </tr>
+    """
+    
+    # Charger le template
+    template_path = resource_path("family_inventory_template.html")
+    with open(template_path, "r", encoding="utf-8") as f:
+        template = f.read()
+    
+    # Remplacer les variables dans le template
+    html_content = template.replace("{date_jour}", date_str)
+    html_content = html_content.replace("{famille}", f"{family_code} - {family_name}")
+    html_content = html_content.replace("{details_html}", details_html)
+
+    output_dir = f"inventaires/inventaire_{date_path}/familles_rapports"
+    os.makedirs(output_dir, exist_ok=True)
+    report_path = os.path.join(output_dir, f"{family_code}.pdf")
+    
+    config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+    options = {
+        'margin-left': '1.5cm',
+        'footer-right': '[page]/[topage]',
+        'footer-font-size': '10',
+    }
+    pdfkit.from_string(html_content, report_path, options=options, configuration=config)
+    
     return report_path
 
 # But : Obtient le chemin absolu du fichier ou dossier spécifié

@@ -11,229 +11,119 @@
             margin: 0;
             padding: 20px;
             color: #333;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        h1 {
-            color: #2c3e50;
-            margin: 0 0 10px;
-        }
-        .meta-info {
-            color: #7f8c8d;
-            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
             margin-bottom: 20px;
         }
-        .summary-card {
-            background-color: #f1f8ff;
-            border-left: 4px solid #1a73e8;
-            padding: 15px;
-            margin-bottom: 30px;
-            border-radius: 4px;
-        }
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-top: 3px solid #3498db;
-        }
-        .stat-value {
-            font-size: 28px;
-            font-weight: bold;
+        h1, h2 {
             color: #2c3e50;
-            margin: 10px 0;
         }
-        .stat-label {
-            color: #7f8c8d;
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        .meta-info {
+            color: #666;
             font-size: 14px;
-            text-transform: uppercase;
+        }
+        .section {
+            margin-bottom: 30px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         th, td {
             text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid #e1e1e1;
-            word-wrap: break-word;
-            max-width: 200px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
         }
         th {
             background-color: #f5f5f5;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        td {
-            font-size: 13px;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        h2 {
-            color: #2c3e50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 0;
         }
         .error-card {
-            background-color: #fff0f0;
-            border-left: 4px solid #e74c3c;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #e74c3c;
+            background-color: #f9f9f9;
         }
-        .famille-card {
-            background-color: #f5f5f5;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
+        .stat-card {
+            display: inline-block;
+            width: 23%;
+            min-width: 150px;
+            margin-right: 1%;
+            margin-bottom: 10px;
+            vertical-align: top;
         }
-        .famille-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .famille-name {
+        .stat-value {
+            font-size: 24px;
             font-weight: bold;
-            font-size: 18px;
-        }
-        .famille-count {
-            font-weight: bold;
-            color: #3498db;
-        }
-        footer {
-            text-align: center;
-            margin-top: 50px;
-            color: #7f8c8d;
-            font-size: 12px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
         }
         @media print {
-            body {
-                background-color: #fff;
-            }
-            .container {
-                box-shadow: none;
-                max-width: 100%;
-            }
-            .no-print {
-                display: none;
+            .stat-card {
+                width: 24%;
             }
         }
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-        tr.added {
-            background-color: #d4edda;
-        }
-        tr.removed {
-            background-color: #f8d7da;
-        }
-        tr.unchanged {
-            background-color: #f8f9fa;
-        }
-        .total-row {
-            font-weight: bold;
-            font-size: 14px;
+        .right-align {
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Rapport d'exécution</h1>
-            <div class="meta-info">
-                <div>Date du rapport: <strong>{{date_str}}</strong></div>
-                <div>Heure de génération: <strong>{{time_str}}</strong></div>
-            </div>
-        </header>
-
-        <div class="summary-card">
-            <h2>Rapport d'exécution d'inventaire</h2>
-            <p>Ce rapport présente l'analyse d'exécution basée sur les données collectées dans le fichier fourni. Il inclut les statistiques globales ainsi que les différentes erreurs rencontrées lors de la réalisation de l'inventaire.</p>
-            <p>Vous pouvez dors et déjà consulter l'inventaire sur le logiciel Sage Batigest Connect, dans le menu Stock > Inventaire.</p>
+    <header>
+        <h1>Inventaire Burographic</h1>
+        <div class="meta-info">
+            <div>Date de l'exécution : <strong>{{date_str}}</strong></div>
         </div>
+    </header>
 
-        <div class="section">
-            <h2>Statistiques globales</h2>
-            <div class="summary-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Articles totaux</div>
-                    <div class="stat-value">{{total_articles}}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Articles différents</div>
-                    <div class="stat-value">{{different_articles}}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Familles d'articles</div>
-                    <div class="stat-value">{{familles_count}}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Nombre d'erreurs</div>
-                    <div class="stat-value">{{errors_count}}</div>
-                </div>
+    <div class="section">
+        <h2>Statistiques globales</h2>
+        <div>
+            <div class="stat-card">
+                <div>Articles totaux</div>
+                <div class="stat-value">{{total_articles}}</div>
+            </div>
+            <div class="stat-card">
+                <div>Articles différents</div>
+                <div class="stat-value">{{different_articles}}</div>
+            </div>
+            <div class="stat-card">
+                <div>Familles d'articles</div>
+                <div class="stat-value">{{familles_count}}</div>
+            </div>
+            <div class="stat-card">
+                <div>Nombre d'erreurs</div>
+                <div class="stat-value">{{errors_count}}</div>
             </div>
         </div>
+    </div>
 
-        <div class="section">
-            <h2>Liste des erreurs ({{errors_count}})</h2>
-            <div id="errors-container">
-                {{errors_html}}
-            </div>
+    <div class="section">
+        <h2>Récapitulatif par famille</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Libellé</th>
+                    <th class="right-align">Valeur du stock</th>
+                </tr>
+            </thead>
+            <tbody id="details-container">
+                {{details_families}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Liste des erreurs ({{errors_count}})</h2>
+        <div id="errors-container">
+            {{errors_html}}
         </div>
-
-        <div class="section">
-            <h2>Détails des articles</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Num. commer.</th>
-                            <th>Nom</th>
-                            <th>Ancien stock</th>
-                            <th>Nouveau stock</th>
-                            <th>Différence</th>
-                            <th>Action</th>
-                            <th>P.A.M.P.</th>
-                            <th>Valeur</th>
-                        </tr>
-                    </thead>
-                    <tbody id="details-container">
-                        {{details_html}}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <footer>
-            <p>Rapport généré automatiquement le {{date_str}} à {{time_str}}</p>
-        </footer>
     </div>
 </body>
 </html>
