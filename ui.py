@@ -427,9 +427,10 @@ class Interface:
 
         # Mettre à jour les valeurs dans le rapport
         if self.report_datas["families_values"].get(code_famille, None) is None:
-            self.report_datas["families_values"][code_famille] = {}
-            self.report_datas["families_values"][code_famille]["libelle"] = famille_libelle
-            self.report_datas["families_values"][code_famille]["value"] = 0
+            self.report_datas["families_values"][code_famille] = {
+                "libelle": famille_libelle,
+                "value": 0
+            }
         self.report_datas["families_values"][code_famille]["value"] += pamp * real_quantity
 
         # Gestion d'une potentielle erreur lors de la mise à jour
