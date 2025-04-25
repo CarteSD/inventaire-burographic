@@ -83,7 +83,7 @@ def generate_report(report_data):
             <tr>
                 <td>{code}</td>
                 <td>{datas["libelle"]}</td>
-                <td>{round(datas["value"], 2)}</td>
+                <td>{round(datas["value"], 2):.2f}</td>
             </tr>
             """
 
@@ -91,7 +91,7 @@ def generate_report(report_data):
         details_families_html += f"""
         <tr class="total-row">
             <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
-            <td>{round(valeur_totale, 2)}</td>
+            <td>{round(valeur_totale, 2):.2f}</td>
         </tr>
         """
 
