@@ -292,9 +292,97 @@ class Interface:
             if inventory_exists:
                 log_and_display("Tout s'est bien passé, remplacement de l'ancien inventaire...", self.text_box, self.root, 1)
                 
-                # Supprimer l'ancien dossier d'inventaire
-                log_and_display(f"Suppression de l'ancien inventaire {this_inventory_directory}...", self.text_box, self.root, 0.5)
-                shutil.rmtree(this_inventory_directory)
+                # Essayer de supprimer l'ancien dossier d'inventaire avec une gestion d'erreur
+                files_locked = True
+                retry_count = 0
+                max_retries = 3
+                
+                while files_locked and retry_count < max_retries:
+                    try:
+                        # Essayer de supprimer l'ancien dossier d'inventaire
+                        log_and_display(f"Tentative de suppression de l'ancien inventaire {this_inventory_directory}...", self.text_box, self.root, 0.5)
+                        shutil.rmtree(this_inventory_directory)
+                        files_locked = False  # La suppression a fonctionné
+                        log_and_display(f"Ancien inventaire supprimé avec succès.", self.text_box, self.root, 0.5)
+                        
+                    except PermissionError:
+                        retry_count += 1
+                        log_and_display(f"ERREUR: Des fichiers sont ouverts dans le dossier d'inventaire.", self.text_box, self.root, 1)
+                        
+                        # Demander à l'utilisateur de fermer les fichiers
+                        retry = messagebox.askretrycancel(
+                            "Fichiers ouverts", 
+                            f"Certains fichiers du dossier d'inventaire sont actuellement ouverts.\n\n"
+                            f"Veuillez fermer tous les fichiers PDF ou HTML qui pourraient être ouverts "
+                            f"dans le dossier '{this_inventory_directory}' et cliquer sur 'Recommencer'.\n\n"
+                            f"Tentative {retry_count}/{max_retries}"
+                        )
+                        
+                        if not retry:
+                            log_and_display("Opération annulée par l'utilisateur.", self.text_box, self.root, 0.5)
+                            # Nettoyer le dossier temporaire
+                            shutil.rmtree(temp_inventory_directory)
+                            return
+                    
+                    except Exception as e:
+                        # En cas d'autre erreur
+                        error_msg = str(e)
+                        log_and_display(f"ERREUR lors de la suppression de l'ancien inventaire: {error_msg}", self.text_box, self.root, 0.5)
+                        
+                        # Proposer des alternatives à l'utilisateur
+                        response = messagebox.askquestion(
+                            "Erreur de suppression",
+                            f"Une erreur est survenue lors de la suppression de l'ancien inventaire:\n{error_msg}\n\n"
+                            f"Souhaitez-vous tout de même créer un nouveau dossier d'inventaire?"
+                        )
+                        
+                        if response == "yes":
+                            # Renommer le dossier temporaire avec un suffixe pour éviter les conflits
+                            new_inventory_name = f"{this_inventory_directory}_new"
+                            log_and_display(f"Création d'un nouveau dossier d'inventaire: {new_inventory_name}", self.text_box, self.root, 0.5)
+                            # Renommer le temporaire en nouveau dossier final
+                            shutil.move(temp_inventory_directory, new_inventory_name)
+                            log_and_display(f"Nouvel inventaire créé dans {new_inventory_name}", self.text_box, self.root, 0.5)
+                            messagebox.showinfo(
+                                "Inventaire terminé", 
+                                f"L'inventaire a été créé dans un nouveau dossier: {os.path.basename(new_inventory_name)}.\n\n"
+                                f"L'ancien inventaire n'a pas été remplacé en raison d'une erreur."
+                            )
+                            return
+                        else:
+                            log_and_display("Opération annulée par l'utilisateur.", self.text_box, self.root, 0.5)
+                            # Nettoyer le dossier temporaire
+                            shutil.rmtree(temp_inventory_directory)
+                            return
+                
+                # Si trop de tentatives ont échoué
+                if files_locked:
+                    log_and_display(f"Impossible de supprimer l'ancien inventaire après {max_retries} tentatives.", self.text_box, self.root, 0.5)
+                    
+                    # Demander à l'utilisateur ce qu'il souhaite faire
+                    response = messagebox.askquestion(
+                        "Maximum de tentatives atteint",
+                        f"Après {max_retries} tentatives, impossible de supprimer l'ancien inventaire.\n\n"
+                        f"Souhaitez-vous créer un nouveau dossier d'inventaire sans supprimer l'ancien?"
+                    )
+                    
+                    if response == "yes":
+                        # Créer un nouveau dossier avec un suffixe
+                        new_inventory_name = f"{this_inventory_directory}_new"
+                        log_and_display(f"Création d'un nouveau dossier d'inventaire: {new_inventory_name}", self.text_box, self.root, 0.5)
+                        shutil.move(temp_inventory_directory, new_inventory_name)
+                        log_and_display(f"Nouvel inventaire créé dans {new_inventory_name}", self.text_box, self.root, 0.5)
+                        messagebox.showinfo(
+                            "Inventaire terminé", 
+                            f"L'inventaire a été créé dans un nouveau dossier: {os.path.basename(new_inventory_name)}.\n\n"
+                            f"L'ancien inventaire n'a pas été remplacé car des fichiers sont toujours ouverts."
+                        )
+                        return
+                    else:
+                        log_and_display("Opération annulée par l'utilisateur.", self.text_box, self.root, 0.5)
+                        # Nettoyer le dossier temporaire
+                        shutil.rmtree(temp_inventory_directory)
+                        return
             
             # Renommer le dossier temporaire en dossier final
             log_and_display(f"Finalisation de l'inventaire...", self.text_box, self.root, 0.5)
