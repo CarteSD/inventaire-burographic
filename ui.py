@@ -89,7 +89,7 @@ class Interface:
         self.text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Initialisation du tableau de données pour le rapport d'exécution
-        self.report_datas = {
+        self.report_data = {
             "errors": {},
             "families_values": {},
             "stats": {
@@ -121,7 +121,7 @@ class Interface:
         self.text_box.delete(1.0, tk.END)
 
         # Réinitialiser le rapport d'exécution
-        self.report_datas = {
+        self.report_data = {
             "errors": {},
             "families_values": {},
             "stats": {
@@ -152,18 +152,18 @@ class Interface:
 
         # Lecture du fichier d'inventaire
         try:
-            inventories_dicrectory = ".\\inventaires"
-            if not os.path.exists(inventories_dicrectory):
-                log_and_display(f"Création du dossier {inventories_dicrectory}...", self.text_box, self.root, 0.5)
-                os.makedirs(inventories_dicrectory)
+            inventories_directory = ".\\inventaires"
+            if not os.path.exists(inventories_directory):
+                log_and_display(f"Création du dossier {inventories_directory}...", self.text_box, self.root, 0.5)
+                os.makedirs(inventories_directory)
 
             # Affichage du message de création du fichier d'inventaire
             log_and_display("Création du dossier d'inventaire à la date du jour", self.text_box, self.root, 0.5)
 
             current_date = datetime.now().strftime("%Y-%m-%d")
             log_and_display(f"Date d'inventaire : {current_date}", self.text_box, self.root)
-            this_inventory_directory = os.path.join(inventories_dicrectory, f"inventaire_{current_date}")
-            temp_inventory_directory = os.path.join(inventories_dicrectory, f"temp_inventaire_{current_date}")
+            this_inventory_directory = os.path.join(inventories_directory, f"inventaire_{current_date}")
+            temp_inventory_directory = os.path.join(inventories_directory, f"temp_inventaire_{current_date}")
 
             inventory_exists = os.path.exists(this_inventory_directory)
             
@@ -189,12 +189,12 @@ class Interface:
             log_and_display("Récupération des articles...", self.text_box, self.root, 1)
 
             # Ajout du nombre d'article total au rapport d'exécution
-            self.report_datas["stats"]["total_articles"] = len(raw_datas)
+            self.report_data["stats"]["total_articles"] = len(raw_datas)
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articles_dictionnary = {}
             undefined_articles = []
-            familles = []
+            families = []
             for code in raw_datas:
                 code = code.replace("\n", "").strip()
                 if code == "":
@@ -220,7 +220,7 @@ class Interface:
                                 next_code = raw_datas[index_actuel + 1].replace("\n", "").strip()
                                 error_msg = self.format_article_error_message(code, index_actuel, prev_code, next_code)
                             
-                            self.report_datas["errors"][error_name] = error_msg
+                            self.report_data["errors"][error_name] = error_msg
                             continue
                         else:
                             log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
@@ -230,8 +230,8 @@ class Interface:
                             return
                 else:
                     if code not in articles_dictionnary:
-                        famille = get_famille(self.connection, code)
-                        if famille is None :
+                        family = get_family(self.connection, code)
+                        if family is None :
                             if code not in undefined_articles:
                                 log_and_display(f"L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
                                 error_name = f"Famille invalide pour l'article {code}"
@@ -239,7 +239,7 @@ class Interface:
                                 if skip:
                                     undefined_articles.append(code)
                                     log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
-                                    self.report_datas["errors"][error_name] = f"L'article {code} n'a pas de famille valide associée. Ignoré, opération reprise."
+                                    self.report_data["errors"][error_name] = f"L'article {code} n'a pas de famille valide associée. Ignoré, opération reprise."
                                     continue
                                 else:
                                     log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
@@ -248,9 +248,9 @@ class Interface:
                                     shutil.rmtree(temp_inventory_directory)
                                     return
                         else:
-                            famille = famille[0].replace(".", "")
-                            if famille not in familles:
-                                familles.append(famille)
+                            family = family[0].replace(".", "")
+                            if family not in families:
+                                families.append(family)
                             articles_dictionnary[code] = 1
                     else:
                         articles_dictionnary[code] += 1
@@ -264,10 +264,10 @@ class Interface:
             with open(output_file, 'w', encoding='utf-8') as file:
                 for key, value in articles_dictionnary.items():
                     file.write(f"{key};{value}\n")
-                    self.report_datas["stats"]["different_articles"] += 1
+                    self.report_data["stats"]["different_articles"] += 1
 
             # Ajout du nombre de familles au rapport d'exécution
-            self.report_datas["stats"]["familles_count"] = len(familles)
+            self.report_data["stats"]["familles_count"] = len(families)
 
             # Création du dossier pour les familles dans le dossier temporaire
             families_directory = os.path.join(temp_inventory_directory, "familles")
@@ -276,12 +276,12 @@ class Interface:
                 os.makedirs(families_directory)
 
             # Création de chaque fichier d'inventaire par famille
-            for famille in familles:
-                log_and_display(f"Création du fichier d'inventaire pour la famille {famille}...", self.text_box, self.root, 1)
-                family_file = os.path.join(families_directory, f"{famille}.txt")
+            for family in families:
+                log_and_display(f"Création du fichier d'inventaire pour la famille {family}...", self.text_box, self.root, 1)
+                family_file = os.path.join(families_directory, f"{family}.txt")
                 with open(family_file, 'w', encoding='utf-8') as file:
                     for key in articles_dictionnary.keys():
-                        if get_famille(self.connection, key)[0].replace(".", "") == famille:
+                        if get_family(self.connection, key)[0].replace(".", "") == family:
                             file.write(f"{key};{articles_dictionnary[key]}\n")
 
             # Exécution de la fonction update_stock
@@ -308,19 +308,19 @@ class Interface:
             current_date_ymd = datetime.now().strftime("%Y-%m-%d")  # Format pour le chemin du dossier
 
             # Pour chaque famille, collecter les articles et générer un rapport
-            for famille in familles:
-                log_and_display(f"Génération du rapport pour la famille {famille}...", self.text_box, self.root, 0.5)
+            for family in families:
+                log_and_display(f"Génération du rapport pour la famille {family}...", self.text_box, self.root, 0.5)
                 # Récupérer tous les articles de cette famille
-                famille_articles = {}
+                families_articles = {}
                 for key, value in articles_dictionnary.items():
                     try:
-                        article_famille = get_famille(self.connection, key)[0].replace(".", "")
-                        if article_famille == famille:
+                        article_family = get_family(self.connection, key)[0].replace(".", "")
+                        if article_family == family:
                             # Récupérer les détails de l'article
                             article_data = get_article_stock(self.connection, key)
                             if article_data:
                                 # Créer une entrée dans le dictionnaire
-                                famille_articles[key] = {
+                                families_articles[key] = {
                                     "nom": article_data[7],       # Le nom/libellé de l'article
                                     "quantite": value,            # La quantité scannée
                                     "prix": article_data[5]       # Le prix moyen pondéré (PAMP)
@@ -329,28 +329,28 @@ class Interface:
                         write_log(f"[ERREUR] Impossible de récupérer les détails de l'article {key}: {str(e)}")
                 
                 # Générer le rapport pour cette famille si des articles sont présents
-                if famille_articles:
-                    famille_name = ""
+                if families_articles:
+                    family_name = ""
                     try:
                         # Récupérer le nom complet de la famille
                         cursor = self.connection.cursor()
                         query = "SELECT Libelle FROM FamilleArticle WHERE Code = ?"
-                        cursor.execute(query, [famille + '.'])
+                        cursor.execute(query, [family + '.'])
                         result = cursor.fetchone()
                         if result:
-                            famille_name = result[0]
+                            family_name = result[0]
                     except Exception as e:
-                        write_log(f"[ERREUR] Impossible de récupérer le nom de la famille {famille}: {str(e)}")
-                        famille_name = famille
+                        write_log(f"[ERREUR] Impossible de récupérer le nom de la famille {family}: {str(e)}")
+                        family_name = family
                     
                     # Générer le rapport HTML
-                    family_report = generate_family_report(famille, famille_name, famille_articles)
-                    log_and_display(f"Rapport généré pour la famille {famille}: {os.path.basename(family_report)}", self.text_box, self.root)
+                    family_report = generate_family_report(family, family_name, families_articles)
+                    log_and_display(f"Rapport généré pour la famille {family}: {os.path.basename(family_report)}", self.text_box, self.root)
 
             # Génération du rapport d'exécution global
             log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
-            self.report_datas["stats"]["errors_count"] = len(self.report_datas["errors"])
-            report = generate_report(self.report_datas)
+            self.report_data["stats"]["errors_count"] = len(self.report_data["errors"])
+            report = generate_report(self.report_data)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
             user_wants_open = messagebox.askyesno("Rapport généré", f"Le rapport d'exécution d'inventaire a été généré à l'emplacement {report}.\n\n Souhaitez-vous l'ouvrir ?")
@@ -383,60 +383,60 @@ class Interface:
 
         if all_articles is not None:
             for article in all_articles:
-                num_commercial = article[6]
-                if num_commercial in correct_stock:
+                commercial_num = article[6]
+                if commercial_num in correct_stock:
                     # Mettre à jour l'article dans la base de données
-                    self.compare_and_update_article_stock(num_commercial, correct_stock[num_commercial])
+                    self.compare_and_update_article_stock(commercial_num, correct_stock[commercial_num])
                 else:
                     # Mettre la valeur du stock à 0
-                    self.compare_and_update_article_stock(num_commercial, 0)
+                    self.compare_and_update_article_stock(commercial_num, 0)
 
     # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
-    def compare_and_update_article_stock(self, num_commercial, real_quantity):
+    def compare_and_update_article_stock(self, commercial_num, real_quantity):
         # Récupérer la quantité en stock théorique
-        bd_article = get_article_stock(self.connection, num_commercial)
+        bd_article = get_article_stock(self.connection, commercial_num)
 
         code = bd_article[0].replace(".", "")
         pamp = bd_article[5]
 
-        qte_appro = bd_article[2]
-        qte_conso = bd_article[3]
-        qte_stock = qte_appro - qte_conso
+        supply_qty = bd_article[2]
+        consumption_qty = bd_article[3]
+        stock_qty = supply_qty - consumption_qty
 
         # Créer un mouvement de stock pour corriger la différence
-        diff = abs(qte_stock - real_quantity)
-        if qte_stock > real_quantity:
-            type_mvt = 'S'
-        elif qte_stock < real_quantity:
-            type_mvt = 'E'
+        diff = abs(stock_qty - real_quantity)
+        if stock_qty > real_quantity:
+            movement_type = 'S'
+        elif stock_qty < real_quantity:
+            movement_type = 'E'
         else:
-            type_mvt = None
+            movement_type = None
 
         # Mettre à jour la somme de l'inventaire de la famille
-        famille_article = get_famille(self.connection, num_commercial)
+        family_article = get_family(self.connection, commercial_num)
 
         # Vérifier si la famille existe
-        if famille_article is None:
+        if family_article is None:
             # Gérer le cas d'une famille inexistante
             log_and_display(f"L'article {code} n'a pas de famille valide associée. Il a été mis à jour mais ne figurera dans aucun inventaire.", self.text_box, self.root, 0.05)
-            self.report_datas["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
+            self.report_data["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
             return
         else:
-            code_famille = famille_article[0]
-            famille_libelle = famille_article[1]
+            family_code = family_article[0]
+            family_libelle = family_article[1]
 
         # Mettre à jour les valeurs dans le rapport
-        if self.report_datas["families_values"].get(code_famille, None) is None:
-            self.report_datas["families_values"][code_famille] = {
-                "libelle": famille_libelle,
+        if self.report_data["families_values"].get(family_code, None) is None:
+            self.report_data["families_values"][family_code] = {
+                "libelle": family_libelle,
                 "value": 0
             }
-        self.report_datas["families_values"][code_famille]["value"] += pamp * real_quantity
+        self.report_data["families_values"][family_code]["value"] += pamp * real_quantity
 
         # Gestion d'une potentielle erreur lors de la mise à jour
-        if type_mvt is not None:
+        if movement_type is not None:
             log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {real_quantity}", self.text_box, self.root, 0.02)
-            if not create_mvt(self.connection, type_mvt, bd_article, diff) :
+            if not create_movement(self.connection, movement_type, bd_article, diff) :
                 log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.02)
             else:
                 write_log(f"Mise à jour de l'article {code} réussie")

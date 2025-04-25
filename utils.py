@@ -73,31 +73,31 @@ def generate_report(report_data):
     
     # Génération du contenu HTML pour les détails des articles
     details_families_html = ""
-    valeur_totale = 0
+    total_value = 0
     if families_values:
         for code, datas in families_values.items():
             # Ajouter la valeur à la valeur totale de l'inventaire
-            valeur_totale += datas["value"]
+            total_value += datas["value"]
             
             # Formatage avec deux décimales fixes
-            valeur_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
+            value_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
             
             details_families_html += f"""
             <tr>
                 <td>{code}</td>
                 <td>{datas["libelle"]}</td>
-                <td class="right-align">{valeur_fmt}</td>
+                <td class="right-align">{value_fmt}</td>
             </tr>
             """
             
         # Formatage du total avec deux décimales fixes
-        valeur_totale_fmt = f"{round(valeur_totale, 2):.2f}".replace('.', ',')
+        total_value_fmt = f"{round(total_value, 2):.2f}".replace('.', ',')
         
         # Ajouter la ligne de total à la fin du tableau
         details_families_html += f"""
         <tr class="total-row">
             <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
-            <td class="right-align">{valeur_totale_fmt}</td>
+            <td class="right-align">{total_value_fmt}</td>
         </tr>
         """
 
@@ -147,21 +147,21 @@ def generate_family_report(family_code, family_name, articles_data):
     # Formatage des montants avec deux décimales fixes
     for code, article_data in articles_data.items():
         quantite = article_data.get("quantite", 0)
-        prix_unitaire = round(article_data.get("prix", 0), 2)
-        prix_total = round(quantite * prix_unitaire, 2)
-        total_value += prix_total
+        unit_price = round(article_data.get("prix", 0), 2)
+        total_price = round(quantite * unit_price, 2)
+        total_value += total_price
         
         # Formatage avec deux décimales fixes
-        prix_unitaire_fmt = f"{prix_unitaire:.2f}".replace('.', ',')
-        prix_total_fmt = f"{prix_total:.2f}".replace('.', ',')
+        unit_price_fmt = f"{unit_price:.2f}".replace('.', ',')
+        total_price_fmt = f"{total_price:.2f}".replace('.', ',')
         
         details_html += f"""
         <tr>
             <td>{code}</td>
             <td>{article_data.get("nom", "")}</td>
             <td class="right-align">{quantite}</td>
-            <td class="right-align">{prix_unitaire_fmt}</td>
-            <td class="right-align">{prix_total_fmt}</td>
+            <td class="right-align">{unit_price_fmt}</td>
+            <td class="right-align">{total_price_fmt}</td>
         </tr>
         """
 

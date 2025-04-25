@@ -50,24 +50,8 @@ def article_exists(connection, item):
         write_log(f"[ERREUR] {str(e)}")
         return False
 
-# But : Vérifier si une famille existe dans la base de données
-def famille_exists(connection, famille):
-    try:
-        cursor = connection.cursor()
-        query = "SELECT COUNT(*) FROM FamilleArticle WHERE Code = ?"
-        cursor.execute(query, famille + ".")
-        result = cursor.fetchone()
-        if result[0] > 0:
-            return True
-        else:
-            return False
-
-    except pyodbc.Error as e:
-        write_log(f"[ERREUR] {str(e)}")
-        return False
-
 # But : Récupérer le code de la famille d'un article
-def get_famille(connection, item):
+def get_family(connection, item):
     try:
         cursor = connection.cursor()
         query = "SELECT FA.Code, FA.Libelle FROM FamilleArticle FA JOIN ElementDef ED ON FA.Code = ED.Famille WHERE ED.NumCommercialGlobal = ?"
@@ -99,11 +83,11 @@ def get_all_articles(connection):
         return None
 
 # But : Récupérer le stock d'un article à partir de son numéro commercial
-def get_article_stock(connection, num_commercial):
+def get_article_stock(connection, commercial_num):
     try:
         cursor = connection.cursor()
         query = "SELECT ES.*, ED.NumCommercialGlobal, ED.LibelleStd FROM ElementStock ES JOIN ElementDef ED ON ES.CodeElem = ED.Code WHERE ED.NumCommercialGlobal = ?"
-        cursor.execute(query, num_commercial)
+        cursor.execute(query, commercial_num)
         result = cursor.fetchone()
         if result:
             return result
@@ -115,11 +99,11 @@ def get_article_stock(connection, num_commercial):
         return None
     
 # But : Récupérer la définition d'un article
-def get_article_def(connection, num_commercial):
+def get_article_def(connection, commercial_num):
     try:
         cursor = connection.cursor()
         query = "SELECT * FROM ElementDef WHERE NumCommercialGlobal = ?"
-        cursor.execute(query, num_commercial)
+        cursor.execute(query, commercial_num)
         result = cursor.fetchone()
         if result:
             return result
@@ -134,21 +118,21 @@ def get_article_def(connection, num_commercial):
 #
 #       Afin d'assurer la cohérence des données, met à jour la table ElementStock
 #       pour garantir que les quantités restent cohérentes entre elles
-def create_mvt(connection, typeMvt, article, quantite):
+def create_movement(connection, movement_type, article, quantite):
     try:
         cursor = connection.cursor()
         # Insertion du mouvement de stock
-        query = "INSERT INTO ElementMvtStock (CodeElem, TypeMvt, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        query = "INSERT INTO ElementMvtStock (CodeElem, movement_type, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
         info = f"Inventaire manuel du {datetime.today().strftime('%d/%m/%Y')}"
-        cursor.execute(query, [article[0], typeMvt, 'M', datetime.today(), quantite, article[5], info])
+        cursor.execute(query, [article[0], movement_type, 'M', datetime.today(), quantite, article[5], info])
         connection.commit()
 
         # Mise à jour du stock de l'élément
-        if typeMvt == 'E':
+        if movement_type == 'E':
             query = "UPDATE ElementStock SET QttAppro = QttAppro + ? WHERE CodeElem = ?"
             cursor.execute(query, [quantite, article[0]])
 
-        elif typeMvt == 'S':
+        elif movement_type == 'S':
             query = "UPDATE ElementStock SET QttConso = QttConso + ? WHERE CodeElem = ?"
             cursor.execute(query, [quantite, article[0]])
         connection.commit()
