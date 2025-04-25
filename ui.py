@@ -281,10 +281,11 @@ class Interface:
                 family_file = os.path.join(families_directory, f"{family}.txt")
                 with open(family_file, 'w', encoding='utf-8') as file:
                     for key in articles_dictionnary.keys():
-                        family = get_family(self.connection, key)[0]
-                        if family is not None :
-                            family = family.replace(".", "")
-                            file.write(f"{key};{articles_dictionnary[key]}\n")
+                        family_code = get_family(self.connection, key)[0]
+                        if family_code is not None :
+                            family_code = family_code.replace(".", "")
+                            if family_code == family:
+                                file.write(f"{key};{articles_dictionnary[key]}\n")
 
             # Exécution de la fonction update_stock
             log_and_display("Lancement de la mise à jour des stocks", self.text_box, self.root, 3)
