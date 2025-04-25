@@ -83,7 +83,7 @@ def generate_report(report_data):
         "value": "",
     }
     families_values["MOB."] = {
-        "libelle": "Mobilier d\'occasion",
+        "libelle": "Mobilier",
         "value": "",
     }
     if families_values:
