@@ -28,6 +28,7 @@ def database_connection():
             )
 
         if connection:
+            connection.autocommit = False
             print("Connexion réussie à la base de données SQL Server")
             return connection
     except pyodbc.Error as e:
