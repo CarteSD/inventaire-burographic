@@ -472,68 +472,114 @@ class Interface:
     def update_stock(self, correct_stock):
         # Récupérer tous les articles de la base de données
         all_articles = get_all_articles(self.connection)
-
+        
         if all_articles is not None:
-            for article in all_articles:
-                commercial_num = article[6]
-                if commercial_num in correct_stock:
-                    # Mettre à jour l'article dans la base de données
-                    self.compare_and_update_article_stock(commercial_num, correct_stock[commercial_num])
+            transaction_success = True
+            try:
+                log_and_display("Début de la transaction de mise à jour du stock...", self.text_box, self.root, 0.5)
+                
+                for article in all_articles:
+                    commercial_num = article[6]
+                    if commercial_num in correct_stock:
+                        # Mettre à jour l'article dans la base de données
+                        success = self.compare_and_update_article_stock(commercial_num, correct_stock[commercial_num])
+                        if not success:
+                            # Si une mise à jour échoue, marquer la transaction comme échouée
+                            transaction_success = False
+                            log_and_display(f"Échec de la mise à jour pour l'article {commercial_num}", self.text_box, self.root, 0.5)
+                            break
+                    else:
+                        # Mettre la valeur du stock à 0
+                        success = self.compare_and_update_article_stock(commercial_num, 0)
+                        if not success:
+                            # Si une mise à jour échoue, marquer la transaction comme échouée
+                            transaction_success = False
+                            log_and_display(f"Échec de la mise à jour à 0 pour l'article {commercial_num}", self.text_box, self.root, 0.5)
+                            break
+                
+                # Valider ou annuler les modifications selon le résultat
+                if transaction_success:
+                    log_and_display("Validation de toutes les mises à jour en base de données...", self.text_box, self.root, 0.5)
+                    self.connection.commit()
+                    log_and_display("Mises à jour validées avec succès!", self.text_box, self.root, 0.5)
                 else:
-                    # Mettre la valeur du stock à 0
-                    self.compare_and_update_article_stock(commercial_num, 0)
+                    log_and_display("Annulation de toutes les mises à jour en raison d'erreurs...", self.text_box, self.root, 0.5)
+                    self.connection.rollback()
+                    log_and_display("Modifications annulées avec succès.", self.text_box, self.root, 0.5)
+                    # Lever une exception pour informer l'appelant de l'échec
+                    raise Exception("La mise à jour du stock a échoué pour certains articles.")
+                    
+            except Exception as e:
+                # En cas d'erreur inattendue, annuler toutes les modifications
+                log_and_display(f"ERREUR lors de la mise à jour du stock: {str(e)}", self.text_box, self.root, 0.5)
+                log_and_display("Annulation de toutes les modifications...", self.text_box, self.root, 0.5)
+                self.connection.rollback()
+                log_and_display("Modifications annulées avec succès.", self.text_box, self.root, 0.5)
+                # Relever l'exception pour qu'elle soit gérée par la méthode appelante
+                raise
 
     # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
     def compare_and_update_article_stock(self, commercial_num, real_quantity):
-        # Récupérer la quantité en stock théorique
-        bd_article = get_article_stock(self.connection, commercial_num)
+        try:
+            # Récupérer la quantité en stock théorique
+            bd_article = get_article_stock(self.connection, commercial_num)
+            if bd_article is None:
+                log_and_display(f"L'article {commercial_num} n'existe pas dans la base de données", self.text_box, self.root, 0.05)
+                return False
 
-        code = bd_article[0].replace(".", "")
-        pamp = bd_article[5]
+            code = bd_article[0].replace(".", "")
+            pamp = bd_article[5]
 
-        supply_qty = bd_article[2]
-        consumption_qty = bd_article[3]
-        stock_qty = supply_qty - consumption_qty
+            supply_qty = bd_article[2]
+            consumption_qty = bd_article[3]
+            stock_qty = supply_qty - consumption_qty
 
-        # Créer un mouvement de stock pour corriger la différence
-        diff = abs(stock_qty - real_quantity)
-        if stock_qty > real_quantity:
-            movement_type = 'S'
-        elif stock_qty < real_quantity:
-            movement_type = 'E'
-        else:
-            movement_type = None
-
-        # Mettre à jour la somme de l'inventaire de la famille
-        family_article = get_family(self.connection, commercial_num)
-
-        # Vérifier si la famille existe
-        if family_article is None:
-            # Gérer le cas d'une famille inexistante
-            log_and_display(f"L'article {code} n'a pas de famille valide associée. Il a été mis à jour mais ne figurera dans aucun inventaire.", self.text_box, self.root, 0.05)
-            self.report_data["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
-            return
-        else:
-            family_code = family_article[0]
-            family_libelle = family_article[1]
-
-        # Mettre à jour les valeurs dans le rapport
-        if self.report_data["families_values"].get(family_code, None) is None:
-            self.report_data["families_values"][family_code] = {
-                "libelle": family_libelle,
-                "value": 0
-            }
-        self.report_data["families_values"][family_code]["value"] += pamp * real_quantity
-
-        # Gestion d'une potentielle erreur lors de la mise à jour
-        if movement_type is not None:
-            log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {real_quantity}", self.text_box, self.root, 0.02)
-            if not create_movement(self.connection, movement_type, bd_article, diff) :
-                log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.02)
+            # Créer un mouvement de stock pour corriger la différence
+            diff = abs(stock_qty - real_quantity)
+            if stock_qty > real_quantity:
+                movement_type = 'S'
+            elif stock_qty < real_quantity:
+                movement_type = 'E'
             else:
-                write_log(f"Mise à jour de l'article {code} réussie")
-        else:
-            log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root, 0.02)
+                movement_type = None
+
+            # Mettre à jour la somme de l'inventaire de la famille
+            family_article = get_family(self.connection, commercial_num)
+
+            # Vérifier si la famille existe
+            if family_article is None:
+                # Gérer le cas d'une famille inexistante
+                log_and_display(f"L'article {code} n'a pas de famille valide associée. Il a été mis à jour mais ne figurera dans aucun inventaire.", self.text_box, self.root, 0.05)
+                self.report_data["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
+                # Ne pas considérer cela comme une erreur bloquante pour la transaction
+            else:
+                family_code = family_article[0]
+                family_libelle = family_article[1]
+
+                # Mettre à jour les valeurs dans le rapport
+                if self.report_data["families_values"].get(family_code, None) is None:
+                    self.report_data["families_values"][family_code] = {
+                        "libelle": family_libelle,
+                        "value": 0
+                    }
+                self.report_data["families_values"][family_code]["value"] += pamp * real_quantity
+
+            # Gestion d'une potentielle erreur lors de la mise à jour
+            if movement_type is not None:
+                log_and_display(f"Mise à jour de l'article {code} à sa nouvelle quantité : {real_quantity}", self.text_box, self.root, 0.02)
+                if not create_movement(self.connection, movement_type, bd_article, diff):
+                    log_and_display(f"La mise à jour de l'article {code} a échoué", self.text_box, self.root, 0.02)
+                    return False
+                else:
+                    write_log(f"Mise à jour de l'article {code} réussie")
+                    return True
+            else:
+                log_and_display(f"Aucune mise à jour nécessaire pour l'article {code}", self.text_box, self.root, 0.02)
+                return True
+        
+        except Exception as e:
+            log_and_display(f"Erreur lors de la mise à jour de l'article {commercial_num}: {str(e)}", self.text_box, self.root, 0.05)
+            return False
 
     # But : Récupérer le nom / libellé d'un article
     def get_article_name(self, code):

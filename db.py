@@ -126,7 +126,6 @@ def create_movement(connection, movement_type, article, quantite):
         query = "INSERT INTO ElementMvtStock (CodeElem, TypeMvt, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
         info = f"Inventaire manuel du {datetime.today().strftime('%d/%m/%Y')}"
         cursor.execute(query, [article[0], movement_type, 'M', datetime.today(), quantite, article[5], info])
-        connection.commit()
 
         # Mise à jour du stock de l'élément
         if movement_type == 'E':
@@ -136,7 +135,6 @@ def create_movement(connection, movement_type, article, quantite):
         elif movement_type == 'S':
             query = "UPDATE ElementStock SET QttConso = QttConso + ? WHERE CodeElem = ?"
             cursor.execute(query, [quantite, article[0]])
-        connection.commit()
 
         return True
     
