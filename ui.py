@@ -42,7 +42,8 @@ class Interface:
         )
         self.description = tk.Label(
             self.main_frame,
-            text="Ce module vous permet de créer un inventaire pour votre entreprise",
+            text="Ce module vous permet de rééquilibrer les stocks de votre base de données.\n"
+            "Sélectionnez un fichier d'inventaire et cliquez sur 'Lancer l'inventaire'.\n\n",
             font=("Arial", 12)
         )
         self.welcome_message.pack(pady=20)
