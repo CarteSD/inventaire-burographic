@@ -261,8 +261,10 @@ class Interface:
             shutil.copyfile(file_path, raw_file)
 
             # Création du fichier code;quantite dans le dossier temporaire
-            output_file = os.path.join(temp_inventory_directory, f"inventaire_trie_{current_date}.txt")
+            output_file = os.path.join(temp_inventory_directory, f"inventaire_trie_{current_date}.csv")
             with open(output_file, 'w', encoding='utf-8') as file:
+                # Ajouter un en-tête au CSV
+                file.write("Code;Quantité\n")
                 for key, value in articles_dictionnary.items():
                     file.write(f"{key};{value}\n")
                     self.report_data["stats"]["different_articles"] += 1
@@ -279,8 +281,10 @@ class Interface:
             # Création de chaque fichier d'inventaire par famille
             for family in families:
                 log_and_display(f"Création du fichier d'inventaire pour la famille {family}...", self.text_box, self.root, 1)
-                family_file = os.path.join(families_directory, f"{family}.txt")
+                family_file = os.path.join(families_directory, f"{family}.csv")
                 with open(family_file, 'w', encoding='utf-8') as file:
+                    # Ajouter un en-tête au CSV
+                    file.write("Code;Quantité\n")
                     for key in articles_dictionnary.keys():
                         family_code = get_family(self.connection, key)[0]
                         if family_code is not None :
