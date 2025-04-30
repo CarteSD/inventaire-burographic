@@ -42,12 +42,9 @@ def generate_report(report_data):
     # Date formatée pour l'affichage
     date_str = now.strftime("%d/%m/%Y")
 
-    # Extraction des statistiques
-    stats = report_data.get("stats", {})
-    errors_count = stats.get("errors_count", 0)
-
-    # Extraction des erreurs et familles avec vérification du type
+    # Extraction des erreurs et familles
     errors = report_data.get("errors", {})
+    errors_count = len(errors)
     families_values = report_data.get("families_values", {})
 
     # Génération du contenu HTML pour les erreurs

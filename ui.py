@@ -93,12 +93,6 @@ class Interface:
         self.report_data = {
             "errors": {},
             "families_values": {},
-            "stats": {
-                "total_articles": 0,
-                "different_articles": 0,
-                "familles_count": 0,
-                "errors_count": 0
-            }
         }
 
     # But : Méthode permettant de sélectionner un fichier dans
@@ -125,12 +119,6 @@ class Interface:
         self.report_data = {
             "errors": {},
             "families_values": {},
-            "stats": {
-                "total_articles": 0,
-                "different_articles": 0,
-                "familles_count": 0,
-                "errors_count": 0
-            }
         }
 
         # Affichage du message de récupération du fichier d'inventaire
@@ -188,9 +176,6 @@ class Interface:
 
             # Affichage du message de récupération des articles
             log_and_display("Récupération des articles...", self.text_box, self.root, 1)
-
-            # Ajout du nombre d'article total au rapport d'exécution
-            self.report_data["stats"]["total_articles"] = len(raw_datas)
 
             # Création d'un dictionnaire pour transformer le fichier en code => quantité
             articles_dictionnary = {}
@@ -267,10 +252,6 @@ class Interface:
                 file.write("Code;Quantité\n")
                 for key, value in articles_dictionnary.items():
                     file.write(f"{key};{value}\n")
-                    self.report_data["stats"]["different_articles"] += 1
-
-            # Ajout du nombre de familles au rapport d'exécution
-            self.report_data["stats"]["familles_count"] = len(families)
 
             # Création du dossier pour les familles dans le dossier temporaire
             families_directory = os.path.join(temp_inventory_directory, "familles")
@@ -445,7 +426,6 @@ class Interface:
 
             # Génération du rapport d'exécution global
             log_and_display("Génération du rapport d'exécution...", self.text_box, self.root, 1)
-            self.report_data["stats"]["errors_count"] = len(self.report_data["errors"])
             report = generate_report(self.report_data)
 
             log_and_display(f"Rapport d'exécution généré : {report}", self.text_box, self.root, 1)
