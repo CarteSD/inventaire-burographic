@@ -581,23 +581,16 @@ class Interface:
             log_and_display(f"Erreur lors de la mise à jour de l'article {commercial_num}: {str(e)}", self.text_box, self.root, 0.05)
             return False
 
-    # But : Récupérer le nom / libellé d'un article
-    def get_article_name(self, code):
-        article = get_article_def(self.connection, code)
-        if article is None:
-            return "inconnu"
-        return article[1]
-
     # But : Formater le message d'erreur pour l'affichage
     def format_article_error_message(self, code, position, prev_code=None, next_code=None):
         if position == "first":
-            article_suivant = self.get_article_name(next_code)
+            article_suivant = get_article_name(self.connection, next_code)
             return f"Article {code} absent en base de données. Situé en première position, avant {next_code} ({article_suivant}). Ignoré, opération reprise"
         elif position == "last":
-            article_precedent = self.get_article_name(prev_code)
+            article_precedent = get_article_name(self.connection, prev_code)
             return f"Article {code} absent en base de données. Situé en dernière position, après {prev_code} ({article_precedent}). Ignoré, opération reprise"
         else:
-            article_precedent = self.get_article_name(prev_code)
-            article_suivant = self.get_article_name(next_code)
+            article_precedent = get_article_name(self.connection, prev_code)
+            article_suivant = get_article_name(self.connection, next_code)
             line_number = position + 1
             return f"Article {code} absent en base de données. Situé entre {prev_code} ({article_precedent}) et {next_code} ({article_suivant}) à la ligne {line_number}. Ignoré, opération reprise"

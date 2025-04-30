@@ -100,14 +100,14 @@ def get_article_stock(connection, commercial_num):
         return None
     
 # But : Récupérer la définition d'un article
-def get_article_def(connection, commercial_num):
+def get_article_name(connection, commercial_num):
     try:
         cursor = connection.cursor()
-        query = "SELECT * FROM ElementDef WHERE NumCommercialGlobal = ?"
+        query = "SELECT LibelleStd FROM ElementDef WHERE NumCommercialGlobal = ?"
         cursor.execute(query, commercial_num)
         result = cursor.fetchone()
         if result:
-            return result
+            return result[0]
         else:
             return None
 
