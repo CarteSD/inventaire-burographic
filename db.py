@@ -36,27 +36,24 @@ def database_connection():
         return None
 
 # But : Vérifier si un article existe dans la base de données
-def article_exists(connection, item):
+def article_exists(connection, num_commercial):
     try:
         cursor = connection.cursor()
         query = "SELECT COUNT(*) FROM ElementDef WHERE NumCommercialGlobal = ?"
-        cursor.execute(query, item)
+        cursor.execute(query, num_commercial)
         result = cursor.fetchone()
-        if result[0] > 0:
-            return True
-        else:
-            return False
+        return result[0] > 0
 
     except pyodbc.Error as e:
         write_log(f"[ERREUR] {str(e)}")
         return False
 
 # But : Récupérer le code de la famille d'un article
-def get_family(connection, item):
+def get_family(connection, num_commercial):
     try:
         cursor = connection.cursor()
         query = "SELECT FA.Code, FA.Libelle FROM FamilleArticle FA JOIN ElementDef ED ON FA.Code = ED.Famille WHERE ED.NumCommercialGlobal = ?"
-        cursor.execute(query, item)
+        cursor.execute(query, num_commercial)
         result = cursor.fetchone()
         if result:
             return result
