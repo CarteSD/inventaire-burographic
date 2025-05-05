@@ -35,12 +35,13 @@ def generate_report(report_data):
 
     # Génération d'un nom de fichier unique basé sur la date et l'heure
     now = datetime.now()
-    timestamp = now.strftime("%Y-%m-%d")
-    report_id = f"{timestamp}"
+    inventory_date = find_closest_date()
+    inventory_date_str_ymd = inventory_date.strftime("%Y-%m-%d")
+    report_id = f"{inventory_date_str_ymd}"
     report_filename = f"rapport_execution_{report_id}.pdf"
 
     # Dates formatées pour l'affichage
-    inventory_date_str = find_closest_date().strftime("%d/%m/%Y")
+    inventory_date_str = inventory_date.strftime("%d/%m/%Y")
     execution_date_str = now.strftime("%d/%m/%Y")
 
     # Extraction des erreurs et familles
@@ -126,7 +127,7 @@ def generate_report(report_data):
     html_content = html_content.replace("{{details_families}}", details_families_html)
 
     # Enregistrer le fichier
-    output_dir = f"inventaires/inventaire_{report_id}"
+    output_dir = f"inventaires/inventaire_{inventory_date_str_ymd}"
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, report_filename)
     
@@ -143,8 +144,9 @@ def generate_report(report_data):
 # But : Générer un rapport de stock HTML pour une famille d'articles
 def generate_family_report(family_code, family_name, articles_data):
     # Préparation des données
-    date_str = find_closest_date().strftime("%d/%m/%Y")
-    date_path = datetime.now().strftime("%Y-%m-%d")
+    inventory_date = find_closest_date()
+    date_str = inventory_date.strftime("%d/%m/%Y")
+    date_path = inventory_date.strftime("%Y-%m-%d")
     
     # Génération du contenu HTML pour les détails des articles
     details_html = ""
@@ -215,7 +217,7 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-# But : Retourne la date la plus proche entre le 30 avril et le 31 octobre de l'année en cours
+# But : Retourne la date précédente la plus proche entre le 30 avril et le 31 octobre
 def find_closest_date():
     # Récupérer la date actuelle
     today = datetime.now()
@@ -229,10 +231,10 @@ def find_closest_date():
 
     # Vérification que les années des dates de référence sont correctes
     if current_month < 4 or (current_month == 4 and current_day < 30):
-        april_30 = datetime(current_year - 1, 4, 31)
+        april_30 = datetime(current_year - 1, 4, 30)
 
     if current_month < 10 or (current_month == 10 and current_day < 31):
-        october_31 = datetime(current_year - 1, 10, 30)
+        october_31 = datetime(current_year - 1, 10, 31)
 
     today_date = today.date()
 

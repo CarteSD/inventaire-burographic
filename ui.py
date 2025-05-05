@@ -147,12 +147,14 @@ class Interface:
                 os.makedirs(inventories_directory)
 
             # Affichage du message de création du fichier d'inventaire
-            log_and_display("Création du dossier d'inventaire à la date du jour", self.text_box, self.root, 0.5)
+            log_and_display("Création du dossier d'inventaire à la date correcte", self.text_box, self.root, 0.5)
 
             current_date = datetime.now().strftime("%Y-%m-%d")
-            log_and_display(f"Date d'inventaire : {current_date}", self.text_box, self.root)
-            this_inventory_directory = os.path.join(inventories_directory, f"inventaire_{current_date}")
-            temp_inventory_directory = os.path.join(inventories_directory, f"temp_inventaire_{current_date}")
+            inventory_date = find_closest_date().strftime("%Y-%m-%d")
+            log_and_display(f"Date du jour : {current_date}", self.text_box, self.root, 0.5)
+            log_and_display(f"Date d'inventaire : {inventory_date}", self.text_box, self.root)
+            this_inventory_directory = os.path.join(inventories_directory, f"inventaire_{inventory_date}")
+            temp_inventory_directory = os.path.join(inventories_directory, f"temp_inventaire_{inventory_date}")
 
             inventory_exists = os.path.exists(this_inventory_directory)
             
@@ -242,11 +244,11 @@ class Interface:
                         articles_dictionnary[code] += 1
 
             # Copie du fichier brut pour en garder une trace
-            raw_file = os.path.join(temp_inventory_directory, f"inventaire_brut_{current_date}.txt")
+            raw_file = os.path.join(temp_inventory_directory, f"inventaire_brut_{inventory_date}.txt")
             shutil.copyfile(file_path, raw_file)
 
             # Création du fichier code;quantite dans le dossier temporaire
-            output_file = os.path.join(temp_inventory_directory, f"inventaire_trie_{current_date}.csv")
+            output_file = os.path.join(temp_inventory_directory, f"inventaire_trie_{inventory_date}.csv")
             with open(output_file, 'w', encoding='utf-8') as file:
                 # Ajouter un en-tête au CSV
                 file.write("Code;Quantité\n")
@@ -382,7 +384,6 @@ class Interface:
 
             # Génération des rapports HTML par famille
             log_and_display("Génération des rapports par famille...", self.text_box, self.root, 1)
-            current_date_ymd = datetime.now().strftime("%Y-%m-%d")  # Format pour le chemin du dossier
 
             # Pour chaque famille, collecter les articles et générer un rapport
             for family in families:
