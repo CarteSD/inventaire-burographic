@@ -34,7 +34,7 @@ def generate_report(report_data):
         raise TypeError("Les données du rapport doivent être un dictionnaire")
 
     # Tableau des familles dont on gère le stock
-    stock_families = ["CCOUL.", "CI.", "CINT.", "OCC.", "CONSC.", "COP.", "INFOC.", "LIC.", "LICINT.", "LOG.", "MB.", "MC.", "MO.", "MOB.", "MULT.", "OR.", "ORINT.", "PA.", "PD.", "PDINT.", "PE.", "PEINT."]
+    stock_families = ["CCOUL.", "CI.", "CINT.", "COCC.", "CONSC.", "COP.", "INFOC.", "LIC.", "LICINT.", "LOG.", "MB.", "MC.", "MO.", "MOB.", "MULT.", "OR.", "ORINT.", "PA.", "PD.", "PDINT.", "PE.", "PEINT."]
 
     # Génération d'un nom de fichier unique basé sur la date et l'heure
     now = datetime.now()
