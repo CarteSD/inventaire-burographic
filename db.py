@@ -137,8 +137,8 @@ def create_movement(connection, movement_type, article, quantite):
         cursor = connection.cursor()
         # Insertion du mouvement de stock
         query = "INSERT INTO ElementMvtStock (CodeElem, TypeMvt, Provenance, Date, Quantite, PA, Info) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        info = f"Inventaire manuel du {datetime.today().strftime('%d/%m/%Y')}"
-        cursor.execute(query, [article[0], movement_type, 'M', datetime.today(), quantite, article[5], info])
+        info = f"Inventaire manuel du {find_closest_date().strftime('%d/%m/%Y')}"
+        cursor.execute(query, [article[0], movement_type, 'M', find_closest_date(), quantite, article[5], info])
 
         # Mise à jour du stock de l'élément
         if movement_type == 'E':
