@@ -408,18 +408,7 @@ class Interface:
                 
                 # Générer le rapport pour cette famille si des articles sont présents
                 if families_articles:
-                    family_name = ""
-                    try:
-                        # Récupérer le nom complet de la famille
-                        cursor = self.connection.cursor()
-                        query = "SELECT Libelle FROM FamilleArticle WHERE Code = ?"
-                        cursor.execute(query, [family + '.'])
-                        result = cursor.fetchone()
-                        if result:
-                            family_name = result[0]
-                    except Exception as e:
-                        write_log(f"[ERREUR] Impossible de récupérer le nom de la famille {family}: {str(e)}")
-                        family_name = family
+                    family_name = get_family_name(self.connection, family)
                     
                     # Générer le rapport HTML
                     family_report = generate_family_report(family, family_name, families_articles)

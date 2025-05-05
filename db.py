@@ -64,6 +64,22 @@ def get_family(connection, num_commercial):
         write_log(f"[ERREUR] {str(e)}")
         return None
 
+# But : Récupérer le nom de la famille d'un article à partir de son code
+def get_family_name(connection, family_code):
+    try:
+        cursor = connection.cursor()
+        query = "SELECT Libelle FROM FamilleArticle WHERE Code = ?"
+        cursor.execute(query, family_code)
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            return None
+
+    except pyodbc.Error as e:
+        write_log(f"[ERREUR] {str(e)}")
+        return None
+
 # But : Récupérer tous les articles de stock en base de données
 def get_all_articles(connection):
     try:
