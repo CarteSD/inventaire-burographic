@@ -465,21 +465,16 @@ class Interface:
                 for article in all_articles:
                     commercial_num = article[6]
                     if commercial_num in correct_stock:
-                        # Mettre à jour l'article dans la base de données
-                        success = self.compare_and_update_article_stock(commercial_num, correct_stock[commercial_num])
-                        if not success:
-                            # Si une mise à jour échoue, marquer la transaction comme échouée
-                            transaction_success = False
-                            log_and_display(f"Échec de la mise à jour pour l'article {commercial_num}", self.text_box, self.root, 0.5)
-                            break
+                        stock = correct_stock[commercial_num]
                     else:
-                        # Mettre la valeur du stock à 0
-                        success = self.compare_and_update_article_stock(commercial_num, 0)
-                        if not success:
-                            # Si une mise à jour échoue, marquer la transaction comme échouée
-                            transaction_success = False
-                            log_and_display(f"Échec de la mise à jour à 0 pour l'article {commercial_num}", self.text_box, self.root, 0.5)
-                            break
+                        stock = 0
+                    # Metrre à jour avec le stock correct
+                    success = self.compare_and_update_article_stock(commercial_num, stock)
+                    if not success:
+                        # Si une mise à jour échoue, marquer la transaction comme échouée
+                        transaction_success = False
+                        log_and_display(f"Échec de la mise à jour à 0 pour l'article {commercial_num}", self.text_box, self.root, 0.5)
+                        break
                 
                 # Valider ou annuler les modifications selon le résultat
                 if transaction_success:
@@ -535,7 +530,6 @@ class Interface:
                 # Gérer le cas d'une famille inexistante
                 log_and_display(f"L'article {code} n'a pas de famille valide associée. Il a été mis à jour mais ne figurera dans aucun inventaire.", self.text_box, self.root, 0.05)
                 self.report_data["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
-                # Ne pas considérer cela comme une erreur bloquante pour la transaction
             else:
                 family_code = family_article[0]
                 family_libelle = family_article[1]
