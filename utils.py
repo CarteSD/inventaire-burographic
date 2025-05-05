@@ -33,6 +33,9 @@ def generate_report(report_data):
     if not isinstance(report_data, dict):
         raise TypeError("Les données du rapport doivent être un dictionnaire")
 
+    # Tableau des familles dont on gère le stock
+    stock_families = ["CCOUL.", "CI.", "CINT.", "OCC.", "CONSC.", "COP.", "INFOC.", "LIC.", "LICINT.", "LOG.", "MB.", "MC.", "MO.", "MOB.", "MULT.", "OR.", "ORINT.", "PA.", "PD.", "PDINT.", "PE.", "PEINT."]
+
     # Génération d'un nom de fichier unique basé sur la date et l'heure
     now = datetime.now()
     inventory_date = find_closest_date()
@@ -86,7 +89,7 @@ def generate_report(report_data):
         "value": "",
     }
     if families_values:
-        for code, datas in sorted(families_values.items(), key=lambda x: x[0]):
+        for code, datas in [(k, v) for k, v in sorted(families_values.items(), key=lambda x: x[0]) if k in stock_families]:
 
             # Formatage avec deux décimales fixes
             if not isinstance(datas["value"], str):
