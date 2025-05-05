@@ -67,8 +67,8 @@ def generate_report(report_data):
     
     # Génération du contenu HTML pour les détails des articles
     details_families_html = ""
-    families_values["COPOC."] = {
-        "libelle": "Photocopieur d'occasion",
+    families_values["COCC."] = {
+        "libelle": "Copieur d'occasion",
         "value": "",
     }
     families_values["MO."] = {
