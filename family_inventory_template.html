@@ -89,9 +89,9 @@
                 <td colspan="5" style="padding-bottom: 15px;">
                     <div class="title">INVENTAIRE BUROGRAPHIC</div>
                     <div class="date-container">
-                        <div>Inventaire en date du {date_jour}</div>
+                        <div>Inventaire en date du {{date_str}}</div>
                     </div>
-                    <div class="identifier">{famille}</div>
+                    <div class="identifier">{{famille}}</div>
                 </td>
             </tr>
             <tr class="header-row">
@@ -103,7 +103,7 @@
             </tr>
         </thead>
         <tbody>
-            {details_html}
+            {{details_html}}
         </tbody>
     </table>
 </body>

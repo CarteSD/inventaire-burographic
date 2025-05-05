@@ -39,8 +39,9 @@ def generate_report(report_data):
     report_id = f"{timestamp}"
     report_filename = f"rapport_execution_{report_id}.pdf"
 
-    # Date formatée pour l'affichage
-    date_str = now.strftime("%d/%m/%Y")
+    # Dates formatées pour l'affichage
+    inventory_date_str = find_closest_date().strftime("%d/%m/%Y")
+    execution_date_str = now.strftime("%d/%m/%Y")
 
     # Extraction des erreurs et familles
     errors = report_data.get("errors", {})
@@ -117,7 +118,8 @@ def generate_report(report_data):
         template = f.read()
 
     # Remplacer les variables dans le template
-    html_content = template.replace("{{date_str}}", date_str)
+    html_content = template.replace("{{inventory_date_str}}", inventory_date_str)
+    html_content = html_content.replace("{{execution_date_str}}", execution_date_str)
     html_content = html_content.replace("{{report_id}}", report_id)
     html_content = html_content.replace("{{errors_count}}", str(errors_count))
     html_content = html_content.replace("{{errors_html}}", errors_html)
@@ -141,7 +143,7 @@ def generate_report(report_data):
 # But : Générer un rapport de stock HTML pour une famille d'articles
 def generate_family_report(family_code, family_name, articles_data):
     # Préparation des données
-    date_str = datetime.now().strftime("%d/%m/%Y")
+    date_str = find_closest_date().strftime("%d/%m/%Y")
     date_path = datetime.now().strftime("%Y-%m-%d")
     
     # Génération du contenu HTML pour les détails des articles
@@ -186,9 +188,9 @@ def generate_family_report(family_code, family_name, articles_data):
         template = f.read()
     
     # Remplacer les variables dans le template
-    html_content = template.replace("{date_jour}", date_str)
-    html_content = html_content.replace("{famille}", f"{family_code} - {family_name}")
-    html_content = html_content.replace("{details_html}", details_html)
+    html_content = template.replace("{{date_str}}", date_str)
+    html_content = html_content.replace("{{famille}}", f"{family_code} - {family_name}")
+    html_content = html_content.replace("{{details_html}}", details_html)
 
     output_dir = f"inventaires/inventaire_{date_path}/familles_rapports"
     os.makedirs(output_dir, exist_ok=True)
@@ -212,3 +214,34 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+# But : Retourne la date la plus proche entre le 30 avril et le 31 octobre de l'année en cours
+def find_closest_date():
+    # Récupérer la date actuelle
+    today = datetime.now()
+    current_year = today.year
+    current_month = today.month
+    current_day = today.day
+
+    # Déclaration des dates de référence
+    april_30 = datetime(current_year, 4, 30)
+    october_31 = datetime(current_year, 10, 31)
+
+    # Vérification que les années des dates de référence sont correctes
+    if current_month < 4 or (current_month == 4 and current_day < 30):
+        april_30 = datetime(current_year - 1, 4, 31)
+
+    if current_month < 10 or (current_month == 10 and current_day < 31):
+        october_31 = datetime(current_year - 1, 10, 30)
+
+    today_date = today.date()
+
+    # Calculer la différence de jours entre aujourd'hui et les dates de référence
+    diff_april_30 = abs((april_30.date() - today_date).days)
+    diff_october_31 = abs((october_31.date() - today_date).days)
+
+    # Comparer les différences
+    if diff_april_30 <= diff_october_31:
+        return april_30
+    else:
+        return october_31
