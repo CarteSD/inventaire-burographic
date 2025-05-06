@@ -23,7 +23,7 @@ class Interface:
     def __init__(self, root):
         # Création de la fenêtre utilisateur
         self.root = root
-        self.root.title("BUROGRAPHIC - Inventaire")
+        self.root.title(f"BUROGRAPHIC - Inventaire {VERSION}")
         self.root.geometry("800x600")
         self.root.iconbitmap(os.path.join(os.path.dirname(__file__), 'icone.ico'))
         self.connection = database_connection()

@@ -13,3 +13,6 @@ DB_PASSWORD = "" # Facultatif dans le cas de l'authentification Windows
 
 # Fichier de log
 LOG_FILE = ""
+
+# Version de l'application
+VERSION = "v1.0.0"
