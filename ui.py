@@ -129,16 +129,19 @@ class Interface:
         if not file_path:
             error_code = "F001"
             messagebox.showerror(f"Erreur [{error_code}]", f"[{error_code}] Veuillez sélectionner un fichier d'inventaire.")
+            self.reset_interface()
             return
 
         if not os.path.exists(file_path):
             error_code = "F002"
             messagebox.showerror(f"Erreur [{error_code}]", f"[{error_code}] Le fichier sélectionné n'existe pas.")
+            self.reset_interface()
             return
 
         if not file_path.endswith(".txt"):
             error_code = "F003"
             messagebox.showerror(f"Erreur [{error_code}]", f"[{error_code}] Le fichier sélectionné n'est pas un fichier texte.")
+            self.reset_interface()
             return
 
         # Affichage du message de lecture du fichier d'inventaire
@@ -343,7 +346,7 @@ class Interface:
                         response = messagebox.askquestion(
                             f"Erreur de suppression [{error_code}]",
                             f"[{error_code}] Une erreur est survenue lors de la suppression de l'ancien inventaire:\n{error_msg}\n\n"
-                            f"Souhaitez-vous tout de même créer un nouveau dossier d'inventaire?"
+                            f"Souhaitez-vous tout de même créer un nouveau dossier d'inventaire ?"
                         )
                         
                         if response == "yes":
@@ -444,7 +447,6 @@ class Interface:
                 log_and_display(f"Ouverture du rapport d'exécution...", self.text_box, self.root)
                 webbrowser.open(f"file:///{os.path.abspath(report)}")
 
-        # Ligne 392: Erreur de traitement de fichier
         except Exception as e:
             error_code = "F004"
             messagebox.showerror(
@@ -462,10 +464,7 @@ class Interface:
             return
         
         finally:
-            # Réactiver les boutons
-            self.launch_inventory_button.config(state=tk.NORMAL)
-            self.browse_button.config(state=tk.NORMAL)
-            self.root.update()
+            self.reset_interface()
 
     # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correct_stock):
@@ -589,3 +588,15 @@ class Interface:
             article_suivant = get_article_name(self.connection, next_code)
             line_number = position + 1
             return f"Article {code} absent en base de données. Situé entre {prev_code} ({article_precedent}) et {next_code} ({article_suivant}) à la ligne {line_number}. Ignoré, opération reprise"
+
+    # But : Réinitialiser l'interface utilisateur
+    def reset_interface(self):
+        # Réinitialiser le chemin du fichier d'inventaire
+        self.inventory_file_path.set("")
+
+        # Réactiver les boutons
+        self.launch_inventory_button.config(state=tk.NORMAL)
+        self.browse_button.config(state=tk.NORMAL)
+
+        # Confirmer la mise à jour
+        self.root.update()
