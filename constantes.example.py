@@ -16,3 +16,26 @@ LOG_FILE = ""
 
 # Version de l'application
 VERSION = "v1.0.0"
+
+# Codes d'erreur
+ERROR_CODES = {
+    # Erreurs fichiers (F)
+    "F001": "Fichier non sélectionné",
+    "F002": "Fichier inexistant",
+    "F003": "Format de fichier invalide",
+    "F004": "Erreur lecture fichier",
+    
+    # Erreurs articles (A)
+    "A001": "Article inexistant",
+    "A002": "Article sans famille",
+    
+    # Erreurs système fichiers (S)
+    "S001": "Dossier existant",
+    "S002": "Fichiers verrouillés",
+    "S003": "Échec suppression",
+    "S004": "Tentatives max atteintes",
+    
+    # Erreurs base de données (D)
+    "D001": "Échec mise à jour stock",
+    "D002": "Transaction annulée"
+}
