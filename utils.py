@@ -88,33 +88,36 @@ def generate_report(report_data):
         "libelle": "Mobilier",
         "value": "",
     }
-    if families_values:
-        for code, datas in [(k, v) for k, v in sorted(families_values.items(), key=lambda x: x[0]) if k in stock_families]:
+    sorted_items = sorted(families_values.items(), key=lambda x: x[0])
+    filtered_items = []
 
-            # Formatage avec deux décimales fixes
-            if not isinstance(datas["value"], str):
-                value_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
-            else :
-                value_fmt = datas["value"]
-            
-            details_families_html += f"""
-            <tr>
-                <td>{code}</td>
-                <td>{datas["libelle"]}</td>
-                <td class="right-align">{value_fmt}</td>
-            </tr>
-            """
+    for code, datas in sorted_items:
+        if code in stock_families:
+            filtered_items.append((code, datas))
+
+    for code, datas in filtered_items:
+
+        # Formatage avec deux décimales fixes
+        if not isinstance(datas["value"], str):
+            value_fmt = f"{round(datas['value'], 2):.2f}".replace('.', ',')
+        else :
+            value_fmt = datas["value"]
         
-        # Ajouter la ligne de total à la fin du tableau
         details_families_html += f"""
-        <tr class="total-row">
-            <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
-            <td class="right-align"></td>
+        <tr>
+            <td>{code}</td>
+            <td>{datas["libelle"]}</td>
+            <td class="right-align">{value_fmt}</td>
         </tr>
         """
-
-    else:
-        details_families_html = '<tr><td colspan="6">Aucun détail d\'article disponible.</td></tr>'
+    
+    # Ajouter la ligne de total à la fin du tableau
+    details_families_html += f"""
+    <tr class="total-row">
+        <td colspan="2" style="text-align: right;">Valeur totale de l'inventaire :</td>
+        <td class="right-align"></td>
+    </tr>
+    """
 
     # Charger le template
     template_path = resource_path("report_template.html")
