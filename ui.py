@@ -127,13 +127,18 @@ class Interface:
         # Récupération du fichier sélectionné
         file_path = self.inventory_file_path.get()
         if not file_path:
-            messagebox.showerror("Erreur", "Veuillez sélectionner un fichier d'inventaire.")
+            error_code = "F001"
+            messagebox.showerror(f"Erreur [{error_code}]", f"[{error_code}] Veuillez sélectionner un fichier d'inventaire.")
             return
+
         if not os.path.exists(file_path):
-            messagebox.showerror("Erreur", "Le fichier sélectionné n'existe pas.")
+            error_code = "F002"
+            messagebox.showerror(f"Erreur [{error_code}]", f"[{error_code}] Le fichier sélectionné n'existe pas.")
             return
+
         if not file_path.endswith(".txt"):
-            messagebox.showerror("Erreur", "Le fichier sélectionné n'est pas un fichier texte.")
+            error_code = "F003"
+            messagebox.showerror(f"Erreur [{error_code}]", f"[{error_code}] Le fichier sélectionné n'est pas un fichier texte.")
             return
 
         # Affichage du message de lecture du fichier d'inventaire
@@ -163,9 +168,13 @@ class Interface:
             os.makedirs(temp_inventory_directory)
 
             if inventory_exists:
-                log_and_display(f"Le dossier {this_inventory_directory} existe déjà", self.text_box, self.root, 0.5)
+                error_code = "S001"
+                log_and_display(f"[{error_code}] Le dossier {this_inventory_directory} existe déjà", self.text_box, self.root, 0.5)
                 time.sleep(2)
-                overwrite = messagebox.askyesno("Dossier déjà existant", f"Le dossier {this_inventory_directory} existe déjà. Voulez-vous l'écraser ?")
+                overwrite = messagebox.askyesno(
+                    f"[{error_code}] {ERROR_CODES[error_code]}", 
+                    f"[{error_code}] Le dossier {this_inventory_directory} existe déjà. Voulez-vous l'écraser ?"
+                )
                 if not overwrite:
                     log_and_display("Annulation de l'opération.", self.text_box, self.root, 0.5)
 
@@ -190,9 +199,13 @@ class Interface:
                 # Vérification de l'existence de l'article dans la base de données
                 if not article_exists(self.connection, code):
                     if code not in undefined_articles:
-                        log_and_display(f"L'article {code} n'existe pas dans la base de données", self.text_box, self.root)
-                        error_name = f"Article {code} inexistant"
-                        skip = messagebox.askyesno("Article inexistant", f"L'article {code} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?")
+                        error_code = "A001"
+                        log_and_display(f"[{error_code}] L'article {code} n'existe pas dans la base de données", self.text_box, self.root)
+                        error_name = f"[{error_code}] Article {code} inexistant"
+                        skip = messagebox.askyesno(
+                            f"[{error_code}] {ERROR_CODES[error_code]}", 
+                            f"[{error_code}] L'article {code} n'existe pas dans la base de données.\n\n Voulez-vous l'ignorer et continuer ?"
+                        )
                         if skip:
                             undefined_articles.append(code)
                             log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
@@ -219,11 +232,15 @@ class Interface:
                 else:
                     if code not in articles_dictionnary:
                         family = get_family(self.connection, code)
-                        if family is None :
+                        if family is None:
                             if code not in undefined_articles:
-                                log_and_display(f"L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
-                                error_name = f"Famille invalide pour l'article {code}"
-                                skip = messagebox.askyesno("Famille invalide", f"L'article {code} n'a pas de famille valide associée.\n\n Voulez-vous l'ignorer et continuer ?")
+                                error_code = "A002"
+                                log_and_display(f"[{error_code}] L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
+                                error_name = f"[{error_code}] Famille invalide pour l'article {code}"
+                                skip = messagebox.askyesno(
+                                    f"[{error_code}] {ERROR_CODES[error_code]}", 
+                                    f"[{error_code}] L'article {code} n'a pas de famille valide associée.\n\n Voulez-vous l'ignorer et continuer ?"
+                                )
                                 if skip:
                                     undefined_articles.append(code)
                                     log_and_display(f"Article {code} ignoré.", self.text_box, self.root, 0.5)
@@ -298,12 +315,13 @@ class Interface:
                         
                     except PermissionError:
                         retry_count += 1
-                        log_and_display(f"ERREUR: Des fichiers sont ouverts dans le dossier d'inventaire.", self.text_box, self.root, 1)
+                        error_code = "S002"
+                        log_and_display(f"[{error_code}] Des fichiers sont ouverts dans le dossier d'inventaire.", self.text_box, self.root, 1)
                         
                         # Demander à l'utilisateur de fermer les fichiers
                         retry = messagebox.askretrycancel(
-                            "Fichiers ouverts", 
-                            f"Certains fichiers du dossier d'inventaire sont actuellement ouverts.\n\n"
+                            f"Fichiers ouverts [{error_code}]", 
+                            f"[{error_code}] Certains fichiers du dossier d'inventaire sont actuellement ouverts.\n\n"
                             f"Veuillez fermer tous les fichiers PDF ou HTML qui pourraient être ouverts "
                             f"dans le dossier '{this_inventory_directory}' et cliquer sur 'Recommencer'.\n\n"
                             f"Tentative {retry_count}/{max_retries}"
@@ -317,13 +335,14 @@ class Interface:
                     
                     except Exception as e:
                         # En cas d'autre erreur
+                        error_code = "S003"
                         error_msg = str(e)
-                        log_and_display(f"ERREUR lors de la suppression de l'ancien inventaire: {error_msg}", self.text_box, self.root, 0.5)
+                        log_and_display(f"[{error_code}] Erreur lors de la suppression de l'ancien inventaire: {error_msg}", self.text_box, self.root, 0.5)
                         
                         # Proposer des alternatives à l'utilisateur
                         response = messagebox.askquestion(
-                            "Erreur de suppression",
-                            f"Une erreur est survenue lors de la suppression de l'ancien inventaire:\n{error_msg}\n\n"
+                            f"Erreur de suppression [{error_code}]",
+                            f"[{error_code}] Une erreur est survenue lors de la suppression de l'ancien inventaire:\n{error_msg}\n\n"
                             f"Souhaitez-vous tout de même créer un nouveau dossier d'inventaire?"
                         )
                         
@@ -348,13 +367,14 @@ class Interface:
                 
                 # Si trop de tentatives ont échoué
                 if files_locked:
-                    log_and_display(f"Impossible de supprimer l'ancien inventaire après {max_retries} tentatives.", self.text_box, self.root, 0.5)
+                    error_code = "S004"
+                    log_and_display(f"[{error_code}] Impossible de supprimer l'ancien inventaire après {max_retries} tentatives.", self.text_box, self.root, 0.5)
                     
                     # Demander à l'utilisateur ce qu'il souhaite faire
                     response = messagebox.askquestion(
-                        "Maximum de tentatives atteint",
-                        f"Après {max_retries} tentatives, impossible de supprimer l'ancien inventaire.\n\n"
-                        f"Souhaitez-vous créer un nouveau dossier d'inventaire sans supprimer l'ancien?"
+                        f"Maximum de tentatives atteint [{error_code}]",
+                        f"[{error_code}] Après {max_retries} tentatives, impossible de supprimer l'ancien inventaire.\n\n"
+                        f"Souhaitez-vous créer un nouveau dossier d'inventaire sans supprimer l'ancien ?"
                     )
                     
                     if response == "yes":
@@ -424,9 +444,14 @@ class Interface:
                 log_and_display(f"Ouverture du rapport d'exécution...", self.text_box, self.root)
                 webbrowser.open(f"file:///{os.path.abspath(report)}")
 
+        # Ligne 392: Erreur de traitement de fichier
         except Exception as e:
-            messagebox.showerror("Erreur", f"Erreur lors du traitement du fichier: {str(e)}")
-            write_log(f"[ERREUR] {str(e)}")
+            error_code = "F004"
+            messagebox.showerror(
+                f"Erreur [{error_code}]", 
+                f"[{error_code}] Erreur lors du traitement du fichier: {str(e)}"
+            )
+            write_log(f"[ERREUR] [{error_code}] {str(e)}")
             # En cas d'erreur, nettoyer le dossier temporaire s'il existe
             if os.path.exists(temp_inventory_directory):
                 try:
@@ -462,8 +487,9 @@ class Interface:
                     success = self.compare_and_update_article_stock(commercial_num, stock)
                     if not success:
                         # Si une mise à jour échoue, marquer la transaction comme échouée
+                        error_code = "D001"
                         transaction_success = False
-                        log_and_display(f"Échec de la mise à jour à 0 pour l'article {commercial_num}", self.text_box, self.root, 0.5)
+                        log_and_display(f"[{error_code}] Échec de la mise à jour pour l'article {commercial_num}", self.text_box, self.root, 0.5)
                         break
                 
                 # Valider ou annuler les modifications selon le résultat
@@ -472,11 +498,12 @@ class Interface:
                     self.connection.commit()
                     log_and_display("Mises à jour validées avec succès!", self.text_box, self.root, 0.5)
                 else:
-                    log_and_display("Annulation de toutes les mises à jour en raison d'erreurs...", self.text_box, self.root, 0.5)
+                    error_code = "D002"
+                    log_and_display(f"[{error_code}] Annulation de toutes les mises à jour en raison d'erreurs...", self.text_box, self.root, 0.5)
                     self.connection.rollback()
                     log_and_display("Modifications annulées avec succès.", self.text_box, self.root, 0.5)
                     # Lever une exception pour informer l'appelant de l'échec
-                    raise Exception("La mise à jour du stock a échoué pour certains articles.")
+                    raise Exception(f"[{error_code}] La mise à jour du stock a échoué pour certains articles.")
                     
             except Exception as e:
                 # En cas d'erreur inattendue, annuler toutes les modifications
