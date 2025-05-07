@@ -5,3 +5,4 @@ constantes.py
 dist/
 build/
 .idea/
+wkhtmltopdf.exe
