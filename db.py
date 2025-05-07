@@ -69,7 +69,7 @@ def get_family_name(connection, family_code):
     try:
         cursor = connection.cursor()
         query = "SELECT Libelle FROM FamilleArticle WHERE Code = ?"
-        cursor.execute(query, family_code)
+        cursor.execute(query, family_code + '.')
         result = cursor.fetchone()
         if result:
             return result[0]
