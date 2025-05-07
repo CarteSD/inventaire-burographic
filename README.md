@@ -97,7 +97,7 @@ python main.py
 
 Vous pouvez également construire l'exécutable afin de pouvoir lancer le module depuis le chemin que vous souhaitez :
 ```bash
-pyinstaller --onefile --windowed --icon=icone.ico --add-data "constantes.py;." --add-data "icone.ico;." --add-data "report_template.html;." --name "BUROGRAPHIC_Inventaire" main.py
+ pyinstaller .\BUROGRAPHIC_Inventaire.spec
 ```
 
 Une fois la compilation terminée, l'exécutable se retrouve dans le dossier `/dist`. Vous pouvez le déplacer où vous le souhaitez.
