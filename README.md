@@ -71,7 +71,7 @@ Il permet également à l'utilisateur de comprendre et de suivre le déroulé du
 
 Afin de déployer ce module, assurez-vous d'avoir Python 3.7 ou supérieur installé sur votre machine. Vous pouvez le télécharger depuis le site officiel de Python : [python.org](https://www.python.org/downloads/).  
 Il est également nécessaire d'avoir Git installé sur sa machine pour cloner ce dépôt GitHub. Vous pouvez le télécharger depuis le site officiel de Git : [git-scm.com](https://git-scm.com/downloads).
-
+Afin de générer les rapports au format PDF, téléchargez wkthmltopdf sur [le site officiel](https://wkhtmltopdf.org/downloads.html).
 ### 1. **Cloner le dépôt** :
 Ouvrez un terminal et exécutez la commande suivante pour cloner le dépôt :
 ```bash
@@ -87,6 +87,7 @@ Installez les dépendances nécessaires en exécutant la commande suivante :
 ```bash
 pip install -r requirements.txt
 ```
+Récupérez également le fichier wkhtmltopdf.exe téléchargé précédemment. Par défaut, il se trouve au chemin suivant `C:\Program Files\wkhtmltopdf\bin`
 
 ### 4. **Lancer le module** :
 Une fois les dépendances installées, vous pouvez lancer le module en exécutant la commande suivante :
