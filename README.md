@@ -101,3 +101,5 @@ Vous pouvez également construire l'exécutable afin de pouvoir lancer le module
 ```
 
 Une fois la compilation terminée, l'exécutable se retrouve dans le dossier `/dist`. Vous pouvez le déplacer où vous le souhaitez.
+
+**Veillez à ajouter également l'exécutable de wkhtmltopdf, au chemin où se situe votre exécutable du module.** Dans le cas contraire, la génération des rapports ne pourra pas avoir lieu.
