@@ -137,7 +137,7 @@ def generate_report(report_data):
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, report_filename)
     
-    config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+    config = pdfkit.configuration(wkhtmltopdf=r'./wkhtmltopdf.exe')
     options = {
         'margin-bottom': '1.5cm',
         'footer-right': '[page]/[topage]',
@@ -204,7 +204,7 @@ def generate_family_report(family_code, family_name, articles_data):
     os.makedirs(output_dir, exist_ok=True)
     report_path = os.path.join(output_dir, f"{family_code}.pdf")
     
-    config = pdfkit.configuration(wkhtmltopdf=r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+    config = pdfkit.configuration(wkhtmltopdf=r'./wkhtmltopdf.exe')
     options = {
         'margin-left': '1.5cm',
         'footer-right': '[page]/[topage]',
