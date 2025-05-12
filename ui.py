@@ -1,4 +1,4 @@
-""""
+"""
     But : Ce fichier contient l'ensemble des méthode relatives à l'interface utilisateur
     Par : Estéban DESESSARD - e.desessard@burographic.fr
     Date : 11/04/2025
