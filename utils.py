@@ -1,9 +1,9 @@
-# # # # # # # # # # # #
-# But : Ce fichier contient l'ensemble des méthodes utilitaires autres
-# Par : Estéban DESESSARD - e.desessard@burographic.fr
-# Date : 11/04/2025
-# # # # # # # # # # # #
-
+"""
+    But : Ce fichier contient l'ensemble des méthodes utilitaires autres
+    Par : Estéban DESESSARD - e.desessard@burographic.fr
+    Date : 11/04/2025
+"""
+ 
 import tkinter as tk
 import time
 from datetime import datetime
@@ -12,14 +12,27 @@ import os
 import sys
 import pdfkit
 
-# But : Écrire un message dans le fichier de log
 def write_log(message):
+    """
+    Écrit un message dans le fichier de log avec la date et l'heure actuelles.
+    
+    Args:
+        message (str): Le message à écrire dans le fichier de log.
+    """
     log_file = LOG_FILE
     with open(log_file, 'a', encoding='utf-8') as f:
         f.write(f"{datetime.now()} - {message}\n")
 
-# But : Écrire un message sur l'interface utilisateur et dans le fichier de log
 def log_and_display(message, text_box, root, delay=0):
+    """
+    Affiche un message dans une zone de texte et l'enregistre dans un fichier de log.
+    
+    Args:
+        message (str): Le message à afficher et à enregistrer.
+        text_box (tk.Text): La zone de texte dans laquelle afficher le message.
+        root (tk.Tk): La fenêtre principale de l'application.
+        delay (int, optional): Délai en secondes avant d'afficher le message. Par défaut, 0.
+    """
     if delay:
         time.sleep(delay)
     text_box.insert(tk.END, message + "\n")
@@ -27,8 +40,19 @@ def log_and_display(message, text_box, root, delay=0):
     root.update()
     write_log(message)
 
-# But : Générer un rapport d'exécution au format HTML
 def generate_report(report_data):
+    """
+    Génère un rapport d'exécution au format HTML et le convertit en PDF.
+
+    Args:
+        report_data (dict): Les données du rapport, y compris les erreurs et les valeurs des familles.
+
+    Returns:
+        report_path (str): Le chemin du fichier PDF généré.    
+    
+    Raises:
+        TypeError: Si report_data n'est pas un dictionnaire.
+    """
     # Vérification que report_data est bien un dictionnaire
     if not isinstance(report_data, dict):
         raise TypeError("Les données du rapport doivent être un dictionnaire")
@@ -147,8 +171,21 @@ def generate_report(report_data):
     
     return report_path
 
-# But : Générer un rapport de stock HTML pour une famille d'articles
 def generate_family_report(family_code, family_name, articles_data):
+    """
+    Génère un rapport de stock HTML pour une famille d'articles et le convertit en PDF.
+    
+    Args:
+        family_code (str): Le code de la famille d'articles.
+        family_name (str): Le nom de la famille d'articles.
+        articles_data (dict): Les données des articles, y compris le code, le nom, la quantité et le prix.
+        
+    Returns:
+        report_path (str): Le chemin du fichier PDF généré.
+        
+    Raises:
+        TypeError: Si articles_data n'est pas un dictionnaire.
+    """
     # Préparation des données
     inventory_date = find_closest_date()
     date_str = inventory_date.strftime("%d/%m/%Y")
@@ -214,8 +251,17 @@ def generate_family_report(family_code, family_name, articles_data):
     
     return report_path
 
-# But : Obtient le chemin absolu du fichier ou dossier spécifié
 def resource_path(relative_path):
+    """
+    Renvoie le chemin absolu du fichier ou dossier spécifié.
+
+    Args:
+        relative_path (str): Le chemin relatif du fichier ou dossier.
+
+    Returns:
+        str: Le chemin absolu du fichier ou dossier.
+    """
+
     try:
         base_path = sys._MEIPASS
     except Exception:
@@ -223,8 +269,21 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-# But : Retourne la date précédente la plus proche entre le 30 avril et le 31 octobre
 def find_closest_date():
+    """
+    Retourne la date précédente la plus proche entre le 30 avril et le 31 octobre.
+
+    Algorithme :
+    1. Récupérer la date actuelle.
+    2. Déclarer les dates de référence : 30 avril et 31 octobre de l'année en cours.
+    3. Si on est avant le 30 avril, on prend le 30 avril de l'année précédente.
+    4. Si on est avant le 31 octobre, on prend le 31 octobre de l'année précédente.
+    5. Calculer la différence de jours entre aujourd'hui et les dates de référence.
+    6. Comparer les différences et retourner la date la plus proche.
+
+    Returns:
+        datetime: La date la plus proche entre le 30 avril et le 31 octobre de l'année en cours.
+    """
     # Récupérer la date actuelle
     today = datetime.now()
     current_year = today.year

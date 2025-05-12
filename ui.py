@@ -1,8 +1,8 @@
-# # # # # # # # # # # #
-# But : Ce fichier contient l'ensemble des méthode relatives à l'interface utilisateur
-# Par : Estéban DESESSARD - e.desessard@burographic.fr
-# Date : 11/04/2025
-# # # # # # # # # # # #
+"""
+    But : Ce fichier contient l'ensemble des méthode relatives à l'interface utilisateur
+    Par : Estéban DESESSARD - e.desessard@burographic.fr
+    Date : 11/04/2025
+"""
 
 import tkinter as tk
 import os
@@ -15,12 +15,30 @@ from db import *
 from utils import *
 import webbrowser
 
-# But : Classe de l'application métier, elle permet de faire
-#       le pont entre l'utilisateur et l'interface
 class Interface:
+    """
+    Gère l'interface utilisateur de l'application d'inventaire.
 
-    # CONSTRUCTEUR
+    Cette classe fournit toutes les fonctionnalités nécessaires pour interagir avec
+    l'utilisateur, traiter les fichiers d'inventaire, et mettre à jour la base de données
+    en conséquence. Elle centralise les opérations d'affichage, de validation, et les
+    interactions avec la base de données.
+
+    Attributes:
+        root (tkinter.Tk): Fenêtre principale de l'application.
+        connection (pyodbc.Connection): Connexion à la base de données.
+        inventory_file_path (tkinter.StringVar): Chemin du fichier d'inventaire sélectionné.
+        text_box (tkinter.Text): Zone d'affichage des informations et logs.
+        report_data (dict): Données collectées pour le rapport d'exécution.
+    """
+
     def __init__(self, root):
+        """
+        Initialise l'interface utilisateur et la connexion à la base de données.
+
+        Args:
+            root (tkinter.Tk): Fenêtre principale de l'application.
+        """
         # Création de la fenêtre utilisateur
         self.root = root
         self.root.title(f"BUROGRAPHIC - Inventaire {VERSION}")
@@ -95,9 +113,12 @@ class Interface:
             "families_values": {},
         }
 
-    # But : Méthode permettant de sélectionner un fichier dans
-    #       l'explorateur de fichiers
     def select_file(self):
+        """
+        Ouvre une boîte de dialogue pour sélectionner un fichier d'inventaire.
+
+        Met à jour le champ de texte avec le chemin du fichier sélectionné.
+        """
         filename = filedialog.askopenfilename(
             title="Sélectionnez un fichier texte",
             filetypes=(("Fichiers texte", "*.txt"), ("Tous les fichiers", "*.*"))
@@ -105,8 +126,45 @@ class Interface:
         if filename:
             self.inventory_file_path.set(filename)
 
-    # But : Lancer la création de l'inventaire
     def launch_inventory(self):
+        """
+        Lance le processus complet d'inventaire.
+        
+        Cette méthode principale gère l'ensemble du processus d'inventaire:
+        
+        1. Validation du fichier d'entrée et préparation:
+        - Vérification du format et de l'existence du fichier
+        - Création des structures de dossiers
+        
+        2. Traitement des articles:
+        - Lecture du fichier d'entrée ligne par ligne
+        - Vérification de l'existence de chaque article dans la base
+        - Gestion des articles inconnus ou sans famille
+        - Construction du dictionnaire des quantités par article
+        
+        3. Organisation par famille:
+        - Identification des familles présentes dans l'inventaire
+        - Création des fichiers CSV par famille
+        
+        4. Mise à jour du stock:
+        - Appel à update_stock() pour mettre à jour la base de données
+        
+        5. Gestion des dossiers d'inventaire:
+        - Vérification d'inventaires existants à la même date
+        - Suppression ou contournement des inventaires existants
+        - Finalisation du dossier d'inventaire
+        
+        6. Génération des rapports:
+        - Création des rapports PDF par famille
+        - Génération du rapport d'exécution global
+        
+        Tout au long du processus, des dialogues d'erreur permettent à l'utilisateur
+        de prendre des décisions en cas de problème.
+        
+        Raises:
+            Exception: Diverses exceptions peuvent être levées et sont gérées par
+                    des boîtes de dialogue appropriées
+        """
         # Désactiver les boutons
         self.launch_inventory_button.config(state=tk.DISABLED)
         self.browse_button.config(state=tk.DISABLED)
@@ -466,8 +524,22 @@ class Interface:
         finally:
             self.reset_interface()
 
-    # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correct_stock):
+        """
+        Met à jour le stock des articles dans la base de données en fonction des quantités fournies.
+
+        Cette méthode récupère tous les articles de la base, puis pour chaque article,
+        compare la quantité théorique avec la quantité scannée. Si la quantité scannée
+        est différente, elle met à jour le stock dans la base de données. Si une erreur
+        se produit lors de la mise à jour, elle annule la transaction et affiche un
+        message d'erreur.
+        
+        Args:
+            correct_stock (dict): Dictionnaire contenant les numéros commerciaux des articles comme clés et les quantités comme valeurs.
+
+        Raises:
+            Exception: Si une erreur se produit lors de la mise à jour du stock ou si la transaction échoue.
+        """
         # Récupérer tous les articles de la base de données
         all_articles = get_all_articles(self.connection)
         
@@ -513,8 +585,32 @@ class Interface:
                 # Relever l'exception pour qu'elle soit gérée par la méthode appelante
                 raise
 
-    # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
     def compare_and_update_article_stock(self, commercial_num, real_quantity):
+        """
+        Compare la quantité théorique d'un article avec la quantité réelle et met à jour le stock si nécessaire.
+        
+        Cette méthode calcule la différence entre le stock théorique (Approvisionnement -
+        Consommation) et la quantité réelle comptée. En fonction de cette différence,
+        elle crée le mouvement de stock correspondant pour corriger le stock dans la
+        base de données. Si l'article n'existe pas dans la base de données, elle affiche
+        un message d'erreur.
+
+        Algorithme:
+        1. Récupérer les données de l'article.
+        2. Calculer la quantité en stock théorique (Approvisionnement - Consommation).
+        3. Déterminer le type de mouvement (Entrée ou Sortie) en fonction de la différence
+        entre le stock théorique et la quantité réelle.
+        4. Vérifier si la famille de l'article existe.
+        5. Mettre à jour la somme de l'inventaire de la famille.
+        6. Créer un mouvement de stock pour corriger la différence.
+
+        Args:
+            commercial_num (str): Numéro commercial de l'article.
+            real_quantity (int): Quantité réelle de l'article.
+            
+        Raises:
+            Exception: Si une erreur se produit lors de la mise à jour du stock ou si l'article n'existe pas dans la base de données.
+        """
         try:
             # Récupérer la quantité en stock théorique
             bd_article = get_article_stock(self.connection, commercial_num)
@@ -578,8 +674,19 @@ class Interface:
             log_and_display(f"Erreur lors de la mise à jour de l'article {commercial_num}: {str(e)}", self.text_box, self.root, 0.05)
             return False
 
-    # But : Formater le message d'erreur pour l'affichage
     def format_article_error_message(self, code, position, prev_code=None, next_code=None):
+        """
+        Formate le message d'erreur pour un article absent dans la base de données.
+
+        Args:
+            code (str): Le code de l'article absent.
+            position (int): La position de l'article dans le fichier d'inventaire.
+            prev_code (str, optional): Le code de l'article précédent. Par défaut None.
+            next_code (str, optional): Le code de l'article suivant. Par défaut None.
+
+        Returns:
+            str: Le message d'erreur formaté.
+        """
         if position == "first":
             article_suivant = get_article_name(self.connection, next_code)
             return f"Article {code} absent en base de données. Situé en première position, avant {next_code} ({article_suivant}). Ignoré, opération reprise"
@@ -592,8 +699,10 @@ class Interface:
             line_number = position + 1
             return f"Article {code} absent en base de données. Situé entre {prev_code} ({article_precedent}) et {next_code} ({article_suivant}) à la ligne {line_number}. Ignoré, opération reprise"
 
-    # But : Réinitialiser l'interface utilisateur
     def reset_interface(self):
+        """
+        Réinitialise l'interface utilisateur après l'exécution de l'inventaire.
+        """
         # Réinitialiser le chemin du fichier d'inventaire
         self.inventory_file_path.set("")
 
