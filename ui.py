@@ -1,8 +1,8 @@
-# # # # # # # # # # # #
-# But : Ce fichier contient l'ensemble des méthode relatives à l'interface utilisateur
-# Par : Estéban DESESSARD - e.desessard@burographic.fr
-# Date : 11/04/2025
-# # # # # # # # # # # #
+""""
+    But : Ce fichier contient l'ensemble des méthode relatives à l'interface utilisateur
+    Par : Estéban DESESSARD - e.desessard@burographic.fr
+    Date : 11/04/2025
+"""
 
 import tkinter as tk
 import os
@@ -18,9 +18,29 @@ import webbrowser
 # But : Classe de l'application métier, elle permet de faire
 #       le pont entre l'utilisateur et l'interface
 class Interface:
+    """
+    Gère l'interface utilisateur de l'application d'inventaire.
 
-    # CONSTRUCTEUR
+    Cette classe fournit toutes les fonctionnalités nécessaires pour interagir avec
+    l'utilisateur, traiter les fichiers d'inventaire, et mettre à jour la base de données
+    en conséquence. Elle centralise les opérations d'affichage, de validation, et les
+    interactions avec la base de données.
+
+    Attributes:
+        root (tkinter.Tk): Fenêtre principale de l'application.
+        connection (pyodbc.Connection): Connexion à la base de données.
+        inventory_file_path (tkinter.StringVar): Chemin du fichier d'inventaire sélectionné.
+        text_box (tkinter.Text): Zone d'affichage des informations et logs.
+        report_data (dict): Données collectées pour le rapport d'exécution.
+    """
+
     def __init__(self, root):
+        """
+        Initialise l'interface utilisateur et la connexion à la base de données.
+
+        Args:
+            root (tkinter.Tk): Fenêtre principale de l'application.
+        """
         # Création de la fenêtre utilisateur
         self.root = root
         self.root.title(f"BUROGRAPHIC - Inventaire {VERSION}")
@@ -95,9 +115,12 @@ class Interface:
             "families_values": {},
         }
 
-    # But : Méthode permettant de sélectionner un fichier dans
-    #       l'explorateur de fichiers
     def select_file(self):
+        """
+        Ouvre une boîte de dialogue pour sélectionner un fichier d'inventaire.
+
+        Met à jour le champ de texte avec le chemin du fichier sélectionné.
+        """
         filename = filedialog.askopenfilename(
             title="Sélectionnez un fichier texte",
             filetypes=(("Fichiers texte", "*.txt"), ("Tous les fichiers", "*.*"))
@@ -105,8 +128,13 @@ class Interface:
         if filename:
             self.inventory_file_path.set(filename)
 
-    # But : Lancer la création de l'inventaire
     def launch_inventory(self):
+        """
+        Lance le processus d'inventaire en lisant le fichier sélectionné,
+        en mettant à jour la base de données et en générant les rapports.
+
+        Cette méthode appelle de nombreuses autres fonctions pour segmenter les tâches.
+        """
         # Désactiver les boutons
         self.launch_inventory_button.config(state=tk.DISABLED)
         self.browse_button.config(state=tk.DISABLED)
@@ -466,8 +494,16 @@ class Interface:
         finally:
             self.reset_interface()
 
-    # But : permet de mettre à jour le stock en se basant sur un dictionnaire code => quantité
     def update_stock(self, correct_stock):
+        """
+        Met à jour le stock des articles dans la base de données en fonction des quantités fournies.
+        
+        Args:
+            correct_stock (dict): Dictionnaire contenant les numéros commerciaux des articles comme clés et les quantités comme valeurs.
+
+        Raises:
+            Exception: Si une erreur se produit lors de la mise à jour du stock ou si la transaction échoue.
+        """
         # Récupérer tous les articles de la base de données
         all_articles = get_all_articles(self.connection)
         
@@ -513,8 +549,17 @@ class Interface:
                 # Relever l'exception pour qu'elle soit gérée par la méthode appelante
                 raise
 
-    # But : Comparer la quantité théorique et la réelle afin de réaliser un mouvement de stock
     def compare_and_update_article_stock(self, commercial_num, real_quantity):
+        """
+        Compare la quantité théorique d'un article avec la quantité réelle et met à jour le stock si nécessaire.
+        
+        Args:
+            commercial_num (str): Numéro commercial de l'article.
+            real_quantity (int): Quantité réelle de l'article.
+            
+        Raises:
+            Exception: Si une erreur se produit lors de la mise à jour du stock ou si l'article n'existe pas dans la base de données.
+        """
         try:
             # Récupérer la quantité en stock théorique
             bd_article = get_article_stock(self.connection, commercial_num)
@@ -578,8 +623,19 @@ class Interface:
             log_and_display(f"Erreur lors de la mise à jour de l'article {commercial_num}: {str(e)}", self.text_box, self.root, 0.05)
             return False
 
-    # But : Formater le message d'erreur pour l'affichage
     def format_article_error_message(self, code, position, prev_code=None, next_code=None):
+        """
+        Formate le message d'erreur pour un article absent dans la base de données.
+
+        Args:
+            code (str): Le code de l'article absent.
+            position (int): La position de l'article dans le fichier d'inventaire.
+            prev_code (str, optional): Le code de l'article précédent. Par défaut None.
+            next_code (str, optional): Le code de l'article suivant. Par défaut None.
+
+        Returns:
+            str: Le message d'erreur formaté.
+        """
         if position == "first":
             article_suivant = get_article_name(self.connection, next_code)
             return f"Article {code} absent en base de données. Situé en première position, avant {next_code} ({article_suivant}). Ignoré, opération reprise"
@@ -592,8 +648,10 @@ class Interface:
             line_number = position + 1
             return f"Article {code} absent en base de données. Situé entre {prev_code} ({article_precedent}) et {next_code} ({article_suivant}) à la ligne {line_number}. Ignoré, opération reprise"
 
-    # But : Réinitialiser l'interface utilisateur
     def reset_interface(self):
+        """
+        Réinitialise l'interface utilisateur après l'exécution de l'inventaire.
+        """
         # Réinitialiser le chemin du fichier d'inventaire
         self.inventory_file_path.set("")
 
