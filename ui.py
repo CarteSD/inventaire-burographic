@@ -544,8 +544,11 @@ class Interface:
             # Vérifier si la famille existe
             if family_article is None:
                 # Gérer le cas d'une famille inexistante
+                error_code = "A002"
+                log_and_display(f"[{error_code}] L'article {code} n'a pas de famille valide associée", self.text_box, self.root, 0.05)
+                error_name = f"[{error_code}] Famille inexistante pour l'article {code}"
                 log_and_display(f"L'article {code} n'a pas de famille valide associée. Il a été mis à jour mais ne figurera dans aucun inventaire.", self.text_box, self.root, 0.05)
-                self.report_data["errors"][f"Famille inexistante pour l'article {code}"] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
+                self.report_data["errors"][error_name] = f"L'article {code} n'a pas de famille valide associée. Mis à jour, mais ne figurera dans aucun inventaire par famille, opération reprise."
             else:
                 family_code = family_article[0]
                 family_libelle = family_article[1]
