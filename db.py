@@ -10,9 +10,6 @@ from utils import *
 def database_connection():
     """
     Crée une connexion à la base de données.
-
-    Args:
-        Aucun
     
     Returns:
         connection (pyodbc.Connection): La connexion à la base de données si réussie, None sinon.
