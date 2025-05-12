@@ -1,8 +1,10 @@
-# # # # # # # # # # # #
-# But : Ce fichier contient l'ensemble des constantes utiles au fonctionnement du module
-# Par : Estéban DESESSARD - e.desessard@burographic.fr
-# Date : 11/04/2025
-# # # # # # # # # # # #
+"""
+    But : Ce fichier contient l'ensemble des constantes et paramètres nécessaires
+    au fonctionnement du module. Il doit être renommé en 'constantes.py' et
+    complété avec les valeurs spécifiques à votre environnement.
+    Par : Estéban DESESSARD - e.desessard@burographic.fr
+    Date : 11/04/2025
+"""
 
 # Paramètres de base de données
 DB_DRIVER = ""
