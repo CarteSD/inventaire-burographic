@@ -269,10 +269,17 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-# But : Retourne la date précédente la plus proche entre le 30 avril et le 31 octobre
 def find_closest_date():
     """
     Retourne la date précédente la plus proche entre le 30 avril et le 31 octobre.
+
+    Algorithme :
+    1. Récupérer la date actuelle.
+    2. Déclarer les dates de référence : 30 avril et 31 octobre de l'année en cours.
+    3. Si on est avant le 30 avril, on prend le 30 avril de l'année précédente.
+    4. Si on est avant le 31 octobre, on prend le 31 octobre de l'année précédente.
+    5. Calculer la différence de jours entre aujourd'hui et les dates de référence.
+    6. Comparer les différences et retourner la date la plus proche.
 
     Returns:
         datetime: La date la plus proche entre le 30 avril et le 31 octobre de l'année en cours.

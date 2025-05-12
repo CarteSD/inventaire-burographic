@@ -15,8 +15,6 @@ from db import *
 from utils import *
 import webbrowser
 
-# But : Classe de l'application métier, elle permet de faire
-#       le pont entre l'utilisateur et l'interface
 class Interface:
     """
     Gère l'interface utilisateur de l'application d'inventaire.
@@ -130,10 +128,42 @@ class Interface:
 
     def launch_inventory(self):
         """
-        Lance le processus d'inventaire en lisant le fichier sélectionné,
-        en mettant à jour la base de données et en générant les rapports.
-
-        Cette méthode appelle de nombreuses autres fonctions pour segmenter les tâches.
+        Lance le processus complet d'inventaire.
+        
+        Cette méthode principale gère l'ensemble du processus d'inventaire:
+        
+        1. Validation du fichier d'entrée et préparation:
+        - Vérification du format et de l'existence du fichier
+        - Création des structures de dossiers
+        
+        2. Traitement des articles:
+        - Lecture du fichier d'entrée ligne par ligne
+        - Vérification de l'existence de chaque article dans la base
+        - Gestion des articles inconnus ou sans famille
+        - Construction du dictionnaire des quantités par article
+        
+        3. Organisation par famille:
+        - Identification des familles présentes dans l'inventaire
+        - Création des fichiers CSV par famille
+        
+        4. Mise à jour du stock:
+        - Appel à update_stock() pour mettre à jour la base de données
+        
+        5. Gestion des dossiers d'inventaire:
+        - Vérification d'inventaires existants à la même date
+        - Suppression ou contournement des inventaires existants
+        - Finalisation du dossier d'inventaire
+        
+        6. Génération des rapports:
+        - Création des rapports PDF par famille
+        - Génération du rapport d'exécution global
+        
+        Tout au long du processus, des dialogues d'erreur permettent à l'utilisateur
+        de prendre des décisions en cas de problème.
+        
+        Raises:
+            Exception: Diverses exceptions peuvent être levées et sont gérées par
+                    des boîtes de dialogue appropriées
         """
         # Désactiver les boutons
         self.launch_inventory_button.config(state=tk.DISABLED)
@@ -497,6 +527,12 @@ class Interface:
     def update_stock(self, correct_stock):
         """
         Met à jour le stock des articles dans la base de données en fonction des quantités fournies.
+
+        Cette méthode récupère tous les articles de la base, puis pour chaque article,
+        compare la quantité théorique avec la quantité scannée. Si la quantité scannée
+        est différente, elle met à jour le stock dans la base de données. Si une erreur
+        se produit lors de la mise à jour, elle annule la transaction et affiche un
+        message d'erreur.
         
         Args:
             correct_stock (dict): Dictionnaire contenant les numéros commerciaux des articles comme clés et les quantités comme valeurs.
@@ -553,6 +589,21 @@ class Interface:
         """
         Compare la quantité théorique d'un article avec la quantité réelle et met à jour le stock si nécessaire.
         
+        Cette méthode calcule la différence entre le stock théorique (Approvisionnement -
+        Consommation) et la quantité réelle comptée. En fonction de cette différence,
+        elle crée le mouvement de stock correspondant pour corriger le stock dans la
+        base de données. Si l'article n'existe pas dans la base de données, elle affiche
+        un message d'erreur.
+
+        Algorithme:
+        1. Récupérer les données de l'article.
+        2. Calculer la quantité en stock théorique (Approvisionnement - Consommation).
+        3. Déterminer le type de mouvement (Entrée ou Sortie) en fonction de la différence
+        entre le stock théorique et la quantité réelle.
+        4. Vérifier si la famille de l'article existe.
+        5. Mettre à jour la somme de l'inventaire de la famille.
+        6. Créer un mouvement de stock pour corriger la différence.
+
         Args:
             commercial_num (str): Numéro commercial de l'article.
             real_quantity (int): Quantité réelle de l'article.
