@@ -479,7 +479,7 @@ class Interface:
                             # Créer une entrée dans le dictionnaire
                             families_articles[article[6]] = {
                                 "nom": article_data[7],
-                                "quantite": article_data[2] - article_data[3],
+                                "quantite": int(article_data[2] - article_data[3]),
                                 "prix": article_data[5]
                             }
                 
