@@ -471,21 +471,17 @@ class Interface:
                 log_and_display(f"Génération du rapport pour la famille {family}...", self.text_box, self.root, 0.5)
                 # Récupérer tous les articles de cette famille
                 families_articles = {}
-                for key, value in articles_dictionnary.items():
-                    try:
-                        article_family = get_family(self.connection, key)[0].replace(".", "")
-                        if article_family == family:
-                            # Récupérer les détails de l'article
-                            article_data = get_article_stock(self.connection, key)
-                            if article_data:
-                                # Créer une entrée dans le dictionnaire
-                                families_articles[key] = {
-                                    "nom": article_data[7],       # Le nom/libellé de l'article
-                                    "quantite": value,            # La quantité scannée
-                                    "prix": article_data[5]       # Le prix moyen pondéré (PAMP)
-                                }
-                    except Exception as e:
-                        write_log(f"[ERREUR] Impossible de récupérer les détails de l'article {key}: {str(e)}")
+                for article in get_all_articles(self.connection):
+                    if get_family(self.connection, article[6])[0].replace(".", "") == family:
+                        # Récupérer les détails de l'article
+                        article_data = get_article_stock(self.connection, article[6])
+                        if article_data:
+                            # Créer une entrée dans le dictionnaire
+                            families_articles[article[6]] = {
+                                "nom": article_data[7],
+                                "quantite": article_data[2] - article_data[3],
+                                "prix": article_data[5]
+                            }
                 
                 # Générer le rapport pour cette famille si des articles sont présents
                 if families_articles:
