@@ -472,12 +472,13 @@ class Interface:
                 # Récupérer tous les articles de cette famille
                 families_articles = {}
                 for article in get_all_articles(self.connection):
-                    if get_family(self.connection, article[6])[0].replace(".", "") == family:
+                    num_commercial = article[6]
+                    if get_family(self.connection, num_commercial)[0].replace(".", "") == family:
                         # Récupérer les détails de l'article
-                        article_data = get_article_stock(self.connection, article[6])
+                        article_data = get_article_stock(self.connection, num_commercial)
                         if article_data:
                             # Créer une entrée dans le dictionnaire
-                            families_articles[article[6]] = {
+                            families_articles[num_commercial] = {
                                 "nom": article_data[7],
                                 "quantite": int(article_data[2] - article_data[3]),
                                 "prix": article_data[5]
