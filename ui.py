@@ -473,16 +473,19 @@ class Interface:
                 families_articles = {}
                 for article in get_all_articles(self.connection):
                     num_commercial = article[6]
-                    if get_family(self.connection, num_commercial)[0].replace(".", "") == family:
-                        # Récupérer les détails de l'article
-                        article_data = get_article_stock(self.connection, num_commercial)
-                        if article_data:
-                            # Créer une entrée dans le dictionnaire
-                            families_articles[num_commercial] = {
-                                "nom": article_data[7],
-                                "quantite": int(article_data[2] - article_data[3]),
-                                "prix": article_data[5]
-                            }
+                    try :
+                        if get_family(self.connection, num_commercial)[0].replace(".", "") == family:
+                            # Récupérer les détails de l'article
+                            article_data = get_article_stock(self.connection, num_commercial)
+                            if article_data:
+                                # Créer une entrée dans le dictionnaire
+                                families_articles[num_commercial] = {
+                                    "nom": article_data[7],
+                                    "quantite": int(article_data[2] - article_data[3]),
+                                    "prix": article_data[5]
+                                }
+                    except Exception as e:
+                        write_log(f"[ERREUR] Impossible de récupérer les détails de l'article {key}: {str(e)}")
                 
                 # Générer le rapport pour cette famille si des articles sont présents
                 if families_articles:
