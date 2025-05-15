@@ -471,18 +471,18 @@ class Interface:
                 log_and_display(f"Génération du rapport pour la famille {family}...", self.text_box, self.root, 0.5)
                 # Récupérer tous les articles de cette famille
                 families_articles = {}
-                for key, value in articles_dictionnary.items():
-                    try:
-                        article_family = get_family(self.connection, key)[0].replace(".", "")
-                        if article_family == family:
+                for article in get_all_articles(self.connection):
+                    num_commercial = article[6]
+                    try :
+                        if get_family(self.connection, num_commercial)[0].replace(".", "") == family:
                             # Récupérer les détails de l'article
-                            article_data = get_article_stock(self.connection, key)
+                            article_data = get_article_stock(self.connection, num_commercial)
                             if article_data:
                                 # Créer une entrée dans le dictionnaire
-                                families_articles[key] = {
-                                    "nom": article_data[7],       # Le nom/libellé de l'article
-                                    "quantite": value,            # La quantité scannée
-                                    "prix": article_data[5]       # Le prix moyen pondéré (PAMP)
+                                families_articles[num_commercial] = {
+                                    "nom": article_data[7],
+                                    "quantite": int(article_data[2] - article_data[3]),
+                                    "prix": article_data[5]
                                 }
                     except Exception as e:
                         write_log(f"[ERREUR] Impossible de récupérer les détails de l'article {key}: {str(e)}")
